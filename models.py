@@ -13,8 +13,6 @@ class Plant(Base):
 
     disease = relationship(
         "PlantDesease",  back_populates='belong_plant')
-    medicene = relationship("PlantDeseaseMedicene",
-                            back_populates="plant_medicene")
 
 
 class PlantDesease(Base):
@@ -22,14 +20,16 @@ class PlantDesease(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     desease_name = Column(String(155), nullable=False)
-    desease_short_description = Column(String(155), nullable=False)
-    symptoms = Column(Text, nullable=False)
+    desease_short_description = Column(String(155), nullable=True)
+    symptoms = Column(Text, nullable=True)
     description = Column(Text)
     plant_id = Column(Integer, ForeignKey(
         'plants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
 
     belong_plant = relationship(
         'Plant',  back_populates='disease')
+    medicene = relationship("PlantDeseaseMedicene",
+                            back_populates="plant_medicene")
 
 
 class PlantDeseaseMedicene(Base):
@@ -38,7 +38,7 @@ class PlantDeseaseMedicene(Base):
     id = Column(Integer, primary_key=True, index=True)
     medicene_type = Column(String(155), nullable=False)
     medicene_description = Column(Text, nullable=False)
-    plant_id = Column(Integer, ForeignKey(
-        'plants.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
+    desease_id = Column(Integer, ForeignKey(
+        'plant_deseases.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
 
-    plant_medicene = relationship('Plant', back_populates='medicene')
+    plant_medicene = relationship('plant_deseases', back_populates='medicene')
