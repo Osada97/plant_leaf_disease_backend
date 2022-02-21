@@ -1,0 +1,11 @@
+tensorflow==2.7.0
+fastapi
+uvicorn
+python-multipart
+pillow
+tensorflow-serving-api==2.7.0
+matplotlib
+numpy
+opencv-python
+psycopg2-binary
+SQLAlchemy
