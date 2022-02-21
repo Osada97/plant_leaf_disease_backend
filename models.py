@@ -2,6 +2,8 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from database import Base
 from sqlalchemy.orm import relationship
 
+# main three tables for prediction (plant details, plant disease details and disease medicine table)
+
 
 class Plant(Base):
     __tablename__ = 'plants'
@@ -30,6 +32,8 @@ class PlantDesease(Base):
         'Plant',  back_populates='disease')
     medicene = relationship("PlantDeseaseMedicene",
                             back_populates="plant_medicene")
+    disease_image = relationship("PlantDeseaseMedicene",
+                                 back_populates="plant_image")
 
 
 class PlantDeseaseMedicene(Base):
@@ -38,7 +42,21 @@ class PlantDeseaseMedicene(Base):
     id = Column(Integer, primary_key=True, index=True)
     medicene_type = Column(String(155), nullable=False)
     medicene_description = Column(Text, nullable=False)
-    desease_id = Column(Integer, ForeignKey(
-        'plant_deseases.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
+    disease_id = Column(Integer, ForeignKey(
+        'plant_deseases.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True)
 
     plant_medicene = relationship('plant_deseases', back_populates='medicene')
+
+# plant_disease image model use for add images for plant diseases
+
+
+class PlantDiseaseImages(Base):
+    __tablename__ = "plant_disease_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    image_name = Column(Text)
+    disease_id = Column(Integer, ForeignKey(
+        'plant_deseases.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
+
+    plant_image = relationship(
+        'plant_deseases', back_populates='disease_image')
