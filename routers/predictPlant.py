@@ -5,6 +5,8 @@ from repository.predictPlant import predictImage
 
 router = APIRouter()
 
+# prediction of the plant
+
 
 @router.post('/predict', tags=['predict-plant'])
 async def predict(file: UploadFile = File(..., media_type='image/jpeg'), model: str = 'potato'):

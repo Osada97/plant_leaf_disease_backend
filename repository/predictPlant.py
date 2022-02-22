@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
+from fastapi import status, HTTPException
 
 # load models
 MODEL = tf.keras.models.load_model("./Model/Potato/2")  # potato train model
@@ -12,9 +13,10 @@ PAPPERMODEL = tf.keras.models.load_model(
     "./Model/Papper/1.h5")  # papper train model
 
 # model classes
-CLASS_NAMES = ["Early Blight", "Late Blight", "Healthy"]
+CLASS_NAMES = [{'name': 'Early blight', 'id': 0}, {
+    'name': "Late Blight", 'id': 1}, {'name': "Healthy", 'id': 2}]
 PAPPER_CLASS_NAMES = [
-    "Pepper bell bacterial spot", "Pepper bell healthy"]
+    {'name': 'Pepper bell bacterial spot', 'id': 3}, {'name': 'Pepper bell healthy', 'id': 4}]
 
 
 def read_file_as_image(data) -> np.ndarray:
@@ -46,14 +48,19 @@ def resizeImage(image):
 
 def list_as_a_image(data, fileName, model, className):
     Path(
-        f"./assets/usersImages/{model}{className}").mkdir(parents=True, exist_ok=True)
+        f"./assets/usersImages/{model}/{className['name']}").mkdir(parents=True, exist_ok=True)
     img = np.array(data).astype(np.uint8)
     data = Image.fromarray(img)
-    data.save(f"./assets/usersImages/{model}{className}/{fileName}")
+    data.save(f"./assets/usersImages/{model}/{className['name']}/{fileName}")
     return
 
 
 async def predictImage(file, model):
+
+    # check file type
+    if file.content_type not in ["image/jpeg", "image/jpeg"]:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                            detail=f'{file.content_type} is invalid file type please upload jpeg files.')
 
     image = read_file_as_image(await file.read())
 
@@ -65,14 +72,17 @@ async def predictImage(file, model):
     if model == 'potato':
         predictions = MODEL.predict(img_batch)
         predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
-    elif model == 'papper':
+    elif model == 'pepper':
         predictions = PAPPERMODEL.predict(img_batch)
         predicted_class = PAPPER_CLASS_NAMES[np.argmax(predictions[0])]
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f'{model} query string not found')
 
     confidence = np.max(predictions[0])
 
     # save user upload files
-    list_as_a_image(AfterCVImage, file.filename, 'potato', predicted_class)
+    list_as_a_image(AfterCVImage, file.filename, model, predicted_class)
 
     return {
         'class': predicted_class,
