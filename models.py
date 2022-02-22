@@ -32,7 +32,7 @@ class PlantDesease(Base):
         'Plant',  back_populates='disease')
     medicene = relationship("PlantDeseaseMedicene",
                             back_populates="plant_medicene")
-    disease_image = relationship("PlantDeseaseMedicene",
+    disease_image = relationship("PlantDiseaseImages",
                                  back_populates="plant_image")
 
 
@@ -45,7 +45,7 @@ class PlantDeseaseMedicene(Base):
     disease_id = Column(Integer, ForeignKey(
         'plant_deseases.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True)
 
-    plant_medicene = relationship('plant_deseases', back_populates='medicene')
+    plant_medicene = relationship('PlantDesease', back_populates='medicene')
 
 # plant_disease image model use for add images for plant diseases
 
@@ -59,4 +59,4 @@ class PlantDiseaseImages(Base):
         'plant_deseases.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
 
     plant_image = relationship(
-        'plant_deseases', back_populates='disease_image')
+        'PlantDesease', back_populates='disease_image')
