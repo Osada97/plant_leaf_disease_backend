@@ -15,10 +15,10 @@ PAPPERMODEL = tf.keras.models.load_model(
     "./Model/Papper/1.h5")  # papper train model
 
 # model classes
-CLASS_NAMES = [{'name': 'Early blight', 'id': 0}, {
-    'name': "Late Blight", 'id': 1}, {'name': "Healthy", 'id': 2}]
+CLASS_NAMES = [{'name': 'Early blight', 'id': 1}, {
+    'name': "Late Blight", 'id': 2}, {'name': "Healthy", 'id': 3}]
 PAPPER_CLASS_NAMES = [
-    {'name': 'Pepper bell bacterial spot', 'id': 3}, {'name': 'Pepper bell healthy', 'id': 4}]
+    {'name': 'Pepper bell bacterial spot', 'id': 4}, {'name': 'Pepper bell healthy', 'id': 5}]
 
 
 def read_file_as_image(data) -> np.ndarray:
@@ -59,8 +59,8 @@ def list_as_a_image(data, fileName, model, className):
  # function for get data base details about plant details plant disease details and medicine details
 
 
-def getPlantDetails(db: Session):
-    return db.query(models.Plant).all()
+def getPlantDetails(db: Session, id):
+    return db.query(models.PlantDesease).filter(models.PlantDesease.id == id).first()
 
 
 async def predictImage(db: Session, file, model):
@@ -93,9 +93,10 @@ async def predictImage(db: Session, file, model):
     list_as_a_image(AfterCVImage, file.filename, model, predicted_class)
 
     # get data base details about plant details plant disease details and medicine details
-    details = getPlantDetails(db)
+    details = getPlantDetails(db, predicted_class['id'])
 
     return {
         'class': predicted_class,
-        'confidence': float(confidence)
+        'confidence': float(confidence),
+        'plant': details
     }
