@@ -6,8 +6,6 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from fastapi import status, HTTPException
-from sqlalchemy.orm import Session
-import models
 
 # load models
 MODEL = tf.keras.models.load_model("./Model/Potato/2")  # potato train model
@@ -56,14 +54,8 @@ def list_as_a_image(data, fileName, model, className):
     data.save(f"./assets/usersImages/{model}/{className['name']}/{fileName}")
     return
 
- # function for get data base details about plant details plant disease details and medicine details
 
-
-def getPlantDetails(db: Session, id):
-    return db.query(models.PlantDesease).filter(models.PlantDesease.id == id).first()
-
-
-async def predictImage(db: Session, file, model):
+async def predictImage(file, model):
 
     # check file type
     if file.content_type not in ["image/jpeg", "image/jpeg"]:
@@ -92,11 +84,7 @@ async def predictImage(db: Session, file, model):
     # save user upload files
     list_as_a_image(AfterCVImage, file.filename, model, predicted_class)
 
-    # get data base details about plant details plant disease details and medicine details
-    details = getPlantDetails(db, predicted_class['id'])
-
     return {
         'class': predicted_class,
         'confidence': float(confidence),
-        'plant': details
     }
