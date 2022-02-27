@@ -41,7 +41,7 @@ class PlantDeseaseMedicene(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     medicene_type = Column(String(155), nullable=False)
-    medicene_description = Column(Text, nullable=False)
+    medicene_description = Column(Text)
     disease_id = Column(Integer, ForeignKey(
         'plant_deseases.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=True)
 
