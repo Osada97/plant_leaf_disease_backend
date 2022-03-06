@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from tables import Col
 from database import Base
 from sqlalchemy.orm import relationship
 
@@ -60,3 +61,29 @@ class PlantDiseaseImages(Base):
 
     plant_image = relationship(
         'PlantDesease', back_populates='disease_image')
+
+
+#!!community section
+# **Admin model**
+class Admin(Base):
+    __tablename__ = "Admins"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(155), nullable=False)
+    password = Column(Text, nullable=False)
+    profile_picture = Column(Text)
+
+
+# **USER model**
+class User(Base):
+    __tablename__ = "Users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String(155), nullable=False)
+    last_name = Column(String(155), nullable=False)
+    username = Column(String(155), nullable=False)
+    email = Column(String(155), nullable=False)
+    phone_number = Column(String(35), nullable=False)
+    location = Column(String(155), nullable=False)
+    password = Column(Text, nullable=False)
+    profile_picture = Column(Text)

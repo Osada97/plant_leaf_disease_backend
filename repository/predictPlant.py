@@ -10,7 +10,7 @@ from fastapi import status, HTTPException
 # load models
 MODEL = tf.keras.models.load_model("./Model/Potato/2")  # potato train model
 PAPPERMODEL = tf.keras.models.load_model(
-    "./Model/Papper/1.h5")  # papper train model
+    "./Model/Papper/1")  # papper train model
 
 # model classes
 CLASS_NAMES = [{'name': 'Early blight', 'id': 1}, {
