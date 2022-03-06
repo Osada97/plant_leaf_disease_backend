@@ -1,6 +1,7 @@
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, status
 from sqlalchemy.orm import Session
 from database import get_db
+from repository.diseaseImage import addPlantToDesease, removeDiseaseImage
 from repository.getPredictedDetails import getPlantAllDetails
 from repository.plantDetails import getDiseaseOnId, getMedicineOnId, getPlantOnId, updateDetails, updateDisease, updateMedicine
 from repository.predictPlant import predictImage
@@ -66,8 +67,17 @@ def updatePlantDetails(request: plant_secmas.PlantUpdate, id: int, db: Session =
 def updatePlantMedicineDetails(request: plant_secmas.PlantMedicineUpdate, id: int, db: Session = Depends(get_db)):
     return updateMedicine(request, id, db)
 
-# **plant images**
+# **plant disease images**
 
 # add plant image
-# remove specific plant image
-# update plant image
+
+
+@router.post('/disease/addimage/{id}', tags=['Disease image'])
+def addImageDisease(id: int, db: Session = Depends(get_db), file: UploadFile = File(..., media_type='image/jpeg')):
+    return addPlantToDesease(id, db, file)
+
+
+# remove specific plant image using plant id
+@router.delete('/disease/removeimage/{id}', status_code=status.HTTP_204_NO_CONTENT, tags=['Disease image'])
+def removeImageById(id: int, db: Session = Depends(get_db)):
+    return removeDiseaseImage(id, db)
