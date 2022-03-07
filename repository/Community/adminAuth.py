@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from JWTtoken import create_access_token
 import models
+from sqlalchemy.exc import IntegrityError
 from repository.Community.hashing import Hash
 from schemas import admin_schemas
 
@@ -30,4 +31,25 @@ def adminLoginToAccount(request: admin_schemas.Login, db: Session):
     # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username, "userType": "admin"})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "user name": user.username, "profile picture": user.profile_picture}}
+
+
+def adminUpdateAccountDetails(id: int, request: admin_schemas.Admin, db: Session):
+    user = db.query(models.Admin).filter(
+        models.Admin.id == id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+
+    user.username = request.username
+    user.profile_picture = request.profile_picture
+
+    try:
+        db.commit()
+        db.refresh(user)
+        return user
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f'Somthing Went Wrong')

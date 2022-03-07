@@ -11,3 +11,15 @@ class CreateAdmin(BaseModel):
 class Login(BaseModel):
     username: str = Field(..., min_length=1, max_length=155)
     password: str = Field(..., min_length=6)
+
+
+class Admin(BaseModel):
+    username: Optional[str] = Field(None, min_length=1, max_length=155)
+    profile_picture: Optional[str] = None
+
+    class Config():
+        orm_mode = True
+
+
+class AdminPassword(BaseModel):
+    password: str = Field(..., min_length=6)
