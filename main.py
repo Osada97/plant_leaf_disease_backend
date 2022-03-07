@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routers import predictPlant
+from routers.Community import admin
 import models
 from database import engine
 
@@ -15,3 +16,4 @@ def ping():
 
 
 app.include_router(predictPlant.router)
+app.include_router(admin.router)

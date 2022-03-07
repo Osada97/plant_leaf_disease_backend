@@ -10,3 +10,5 @@ opencv-python
 psycopg2-binary
 SQLAlchemy
 alembic
+passlib
+bcrypt
