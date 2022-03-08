@@ -59,3 +59,28 @@ def adminUpdateAccountDetails(id: int, request: admin_schemas.Admin, db: Session
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Somthing Went Wrong')
+
+# admin update password
+
+
+def adminUpdatePassword(id: int, request: admin_schemas.AdminUpdatePassword, db: Session):
+    user = db.query(models.Admin).filter(models.Admin.id == id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+
+    if not Hash.verify(request.old_password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Password")
+
+    user.password = Hash.bcrypt(request.new_password)
+
+    try:
+        db.commit()
+        db.refresh(user)
+        return user
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f'Somthing Went Wrong')

@@ -21,5 +21,6 @@ class Admin(BaseModel):
         orm_mode = True
 
 
-class AdminPassword(BaseModel):
-    password: str = Field(..., min_length=6)
+class AdminUpdatePassword(BaseModel):
+    old_password: str = Field(..., min_length=6)
+    new_password: str = Field(..., min_length=6)

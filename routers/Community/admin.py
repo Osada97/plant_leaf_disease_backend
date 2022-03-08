@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from repository.Community.adminAuth import adminCreateAccount, adminLoginToAccount, adminUpdateAccountDetails
+from oauth2 import get_current_user
+from repository.Community.adminAuth import adminCreateAccount, adminLoginToAccount, adminUpdateAccountDetails, adminUpdatePassword
 from sqlalchemy.orm import session
 from database import get_db
-from schemas.admin_schemas import CreateAdmin,  Admin
+from schemas.admin_schemas import AdminUpdatePassword, CreateAdmin,  Admin, Login
 
 
 router = APIRouter(
@@ -31,12 +32,11 @@ def adminLoginAccount(request: OAuth2PasswordRequestForm = Depends(), db: sessio
 
 # admin upload profile picture
 @router.put('/updatedetails/{id}', response_model=Admin)
-def adminUpdateAccount(id: int, request: Admin, db: session = Depends(get_db)):
+def adminUpdateAccount(id: int, request: Admin, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
     return adminUpdateAccountDetails(id, request, db)
 
 
 # update admin password
-@router.put('/updatepassword/{id}')
-def adminUpdateNewPassword():
-    pass
-# show admin details
+@router.put('/updatepassword/{id}', response_model=Admin)
+def adminUpdateNewPassword(id: int, request: AdminUpdatePassword, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
+    return adminUpdatePassword(id, request, db)
