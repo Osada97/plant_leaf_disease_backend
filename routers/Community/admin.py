@@ -33,5 +33,10 @@ def adminLoginAccount(request: OAuth2PasswordRequestForm = Depends(), db: sessio
 @router.put('/updatedetails/{id}', response_model=Admin)
 def adminUpdateAccount(id: int, request: Admin, db: session = Depends(get_db)):
     return adminUpdateAccountDetails(id, request, db)
+
+
 # update admin password
+@router.put('/updatepassword/{id}')
+def adminUpdateNewPassword():
+    pass
 # show admin details

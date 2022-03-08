@@ -6,6 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from repository.Community.hashing import Hash
 from schemas import admin_schemas
 
+# admin create account
+
 
 def adminCreateAccount(request: admin_schemas.CreateAdmin, db: Session):
     new_admin = models.Admin(username=request.username,
@@ -14,6 +16,8 @@ def adminCreateAccount(request: admin_schemas.CreateAdmin, db: Session):
     db.commit()
     db.refresh(new_admin)
     return {"details": f"Admin {new_admin.username} {new_admin.id} is created"}
+
+# admin login account
 
 
 def adminLoginToAccount(request: admin_schemas.Login, db: Session):
@@ -32,6 +36,8 @@ def adminLoginToAccount(request: admin_schemas.Login, db: Session):
     access_token = create_access_token(
         data={"sub": user.username, "userType": "admin"})
     return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "user name": user.username, "profile picture": user.profile_picture}}
+
+# admin update account details
 
 
 def adminUpdateAccountDetails(id: int, request: admin_schemas.Admin, db: Session):
