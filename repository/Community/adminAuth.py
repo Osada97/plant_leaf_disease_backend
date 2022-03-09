@@ -79,7 +79,7 @@ def adminUpdatePassword(id: int, request: admin_schemas.AdminUpdatePassword, db:
     try:
         db.commit()
         db.refresh(user)
-        return user
+        return {"details": "Password Changed Successfully"}
     except IntegrityError as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
