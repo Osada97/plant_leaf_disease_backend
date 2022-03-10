@@ -88,11 +88,11 @@ class User(Base):
     password = Column(Text, nullable=False)
     profile_picture = Column(Text)
 
-    posts = relationship("community_posts", back_populates='owner')
-    user_comments = relationship("community_comments", back_populates='user')
-    user_vote = relationship("vote_posts",
+    posts = relationship("CommunityPost", back_populates='owner')
+    user_comments = relationship("Comments", back_populates='user')
+    user_vote = relationship("VotePost",
                              back_populates='voteOwner')
-    user_comment_vote = relationship("vote_comments",
+    user_comment_vote = relationship("VoteComment",
                                      back_populates='CommentvoteOwner')
 
 
@@ -110,10 +110,12 @@ class CommunityPost(Base):
         'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
 
     owner = relationship("User", back_populates='posts')
-    images = relationship("community_post_images",
-                          back_populates='relate_post')
-    vote = relationship("vote_posts",
+    images = relationship("CommunityPostImages",
+                          back_populates='relate_image_post')
+    vote = relationship("VotePost",
                         back_populates='votePost')
+    comment = relationship("Comments",
+                           back_populates='relate_post')
 
 
 class CommunityPostImages(Base):
@@ -124,8 +126,7 @@ class CommunityPostImages(Base):
     postId = Column(Integer, ForeignKey('community_posts.id',
                     ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
 
-    relate_post = relationship("community_posts", back_populates='images')
-    comments = relationship("community_comments", back_populates='relate_post')
+    relate_image_post = relationship("CommunityPost", back_populates='images')
 
 
 class Comments(Base):
@@ -141,9 +142,9 @@ class Comments(Base):
     userid = Column(Integer, ForeignKey(
         'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
 
-    relate_post = relationship("community_posts", back_populates='comments')
-    user = relationship("users", back_populates='user_comments')
-    comment_vote = relationship("vote_comments", back_populates='voteComment')
+    relate_post = relationship("CommunityPost", back_populates='comment')
+    user = relationship("User", back_populates='user_comments')
+    comment_vote = relationship("VoteComment", back_populates='voteComment')
 
 
 class VotePost(Base):
@@ -157,8 +158,8 @@ class VotePost(Base):
     userId = Column(Integer, ForeignKey(
         'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
 
-    voteOwner = relationship("users", back_populates='user_vote')
-    votePost = relationship("community_posts", back_populates='vote')
+    voteOwner = relationship("User", back_populates='user_vote')
+    votePost = relationship("CommunityPost", back_populates='vote')
 
 
 class VoteComment(Base):
@@ -173,6 +174,6 @@ class VoteComment(Base):
         'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
 
     CommentvoteOwner = relationship(
-        "users", back_populates='user_comment_vote')
+        "User", back_populates='user_comment_vote')
     voteComment = relationship(
-        "community_comments", back_populates='comment_vote')
+        "Comments", back_populates='comment_vote')
