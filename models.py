@@ -1,7 +1,7 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
-from tables import Col
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime, Boolean
 from database import Base
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 # main three tables for prediction (plant details, plant disease details and disease medicine table)
 
@@ -76,7 +76,7 @@ class Admin(Base):
 
 # **USER model**
 class User(Base):
-    __tablename__ = "Users"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(155), nullable=False)
@@ -87,3 +87,92 @@ class User(Base):
     location = Column(String(155), nullable=False)
     password = Column(Text, nullable=False)
     profile_picture = Column(Text)
+
+    posts = relationship("community_posts", back_populates='owner')
+    user_comments = relationship("community_comments", back_populates='user')
+    user_vote = relationship("vote_posts",
+                             back_populates='voteOwner')
+    user_comment_vote = relationship("vote_comments",
+                                     back_populates='CommentvoteOwner')
+
+
+class CommunityPost(Base):
+    __tablename__ = "community_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_title = Column(String(155), nullable=False)
+    post_date = Column(DateTime(timezone=True), default=func.now())
+    description = Column(Text)
+    up_vote_count = Column(Integer, default=0)
+    down_vote_count = Column(Integer, default=0)
+    is_approve = Column(Boolean, unique=False, default=False)
+    userId = Column(Integer, ForeignKey(
+        'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+
+    owner = relationship("User", back_populates='posts')
+    images = relationship("community_post_images",
+                          back_populates='relate_post')
+    vote = relationship("vote_posts",
+                        back_populates='votePost')
+
+
+class CommunityPostImages(Base):
+    __tablename__ = "community_post_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    image_name = Column(Text)
+    postId = Column(Integer, ForeignKey('community_posts.id',
+                    ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+
+    relate_post = relationship("community_posts", back_populates='images')
+    comments = relationship("community_comments", back_populates='relate_post')
+
+
+class Comments(Base):
+    __tablename__ = "community_comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    comment = Column(Text)
+    comment_date = Column(DateTime(timezone=True), default=func.now())
+    up_vote_count = Column(Integer, default=0)
+    down_vote_count = Column(Integer, default=0)
+    postId = Column(Integer, ForeignKey(
+        'community_posts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+    userid = Column(Integer, ForeignKey(
+        'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+
+    relate_post = relationship("community_posts", back_populates='comments')
+    user = relationship("users", back_populates='user_comments')
+    comment_vote = relationship("vote_comments", back_populates='voteComment')
+
+
+class VotePost(Base):
+    __tablename__ = "vote_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    postId = Column(Integer, ForeignKey(
+        'community_posts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+    is_up_vote = Column(Boolean, unique=False, default=False)
+    is_down_vote = Column(Boolean, unique=False, default=False)
+    userId = Column(Integer, ForeignKey(
+        'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+
+    voteOwner = relationship("users", back_populates='user_vote')
+    votePost = relationship("community_posts", back_populates='vote')
+
+
+class VoteComment(Base):
+    __tablename__ = "vote_comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    commentId = Column(Integer, ForeignKey(
+        'community_comments.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+    is_up_vote = Column(Boolean, unique=False, default=False)
+    is_down_vote = Column(Boolean, unique=False, default=False)
+    userId = Column(Integer, ForeignKey(
+        'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+
+    CommentvoteOwner = relationship(
+        "users", back_populates='user_comment_vote')
+    voteComment = relationship(
+        "community_comments", back_populates='comment_vote')
