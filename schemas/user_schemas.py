@@ -34,3 +34,15 @@ class ProfileUpdate(BaseModel):
 class UpdatePassword(BaseModel):
     old_password: str = Field(..., min_length=1)
     new_password: str = Field(..., min_length=1)
+
+
+class GetUser(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    username: str
+    location: str
+    profile_picture: Optional[str] = None
+
+    class Config:
+        orm_mode = True

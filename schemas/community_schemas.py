@@ -1,5 +1,7 @@
+from typing import List, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
+from schemas.user_schemas import GetUser
 
 
 class CommunityPost(BaseModel):
@@ -15,7 +17,8 @@ class ShowCommunityPost(CommunityPost):
     up_vote_count: int
     is_approve: bool
     down_vote_count: int
-    userId: int
+    owner: GetUser
+    isUser: Optional[bool] = False
 
     class Config():
         orm_mode = True
