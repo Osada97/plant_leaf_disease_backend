@@ -14,7 +14,7 @@ def addPlantToDesease(id: int, db: Session, file):
    # check file type
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                            detail=f'{file.content_type} is invalid file type please upload jpeg files.')
+                            detail=f'{file.content_type} is invalid file type please upload jpeg and png files.')
 
     path = './assets/plant_disease_images'
     # check specific file directory exits
