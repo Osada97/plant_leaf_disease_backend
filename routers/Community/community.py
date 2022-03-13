@@ -3,9 +3,10 @@ from fastapi import APIRouter, Depends, Request, File, UploadFile
 from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
+from repository.Community.comments import addCommentToPost, getCommentOnId, removeCommentId, updateCommentId
 from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeImageFromPost, updateCommunityPost
 from repository.Community import userAuth
-from schemas.community_schemas import CommunityPost, ShowCommunityPost
+from schemas.community_schemas import CommunityPost, ShowComment, ShowCommunityPost, CreateComment, Comment
 
 router = APIRouter(
     prefix='/community',
@@ -65,11 +66,38 @@ def addImagePost(id: int, req: Request,  db: session = Depends(get_db), file: Up
 # remove image from post
 
 
-@router.post('/removeimageinopost/{id}')
+@router.delete('/removeimageinpost/{id}')
 def addImagePost(id: int, req: Request,  db: session = Depends(get_db),  new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return removeImageFromPost(id, req, db)
 
 # create new comment
+
+
+@router.post('/comment/create/{id}', response_model=ShowComment)
+def createComment(id: int, req: Request, request: CreateComment, db: session = Depends(get_db),  new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addCommentToPost(id, req, request, db)
 # get new comment
-# update new comment
-# remove new comment
+
+
+@router.get('/comment/get/{id}', response_model=List[Comment])
+def getComment(id: int, req: Request,  db: session = Depends(get_db)):
+    return getCommentOnId(id, req, db)
+
+# update  comment
+
+
+@router.put('/comment/update/{id}')
+def updateComment(id: int, req: Request, request: CreateComment, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return updateCommentId(id, req, request, db)
+
+
+# remove  comment
+@router.delete('/comment/delete/{id}')
+def removeComment(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeCommentId(id, req, db)
+
+# add up vote for commenet
+# add down vote for commenet
+
+# add image to comment
+# remove image to comment
