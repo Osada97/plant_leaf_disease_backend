@@ -40,3 +40,5 @@ def adminUpdateAccount(id: int, request: Admin, db: session = Depends(get_db), c
 @router.put('/updatepassword/{id}', response_model=Admin)
 def adminUpdateNewPassword(id: int, request: AdminUpdatePassword, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
     return adminUpdatePassword(id, request, db)
+
+# admin approve post

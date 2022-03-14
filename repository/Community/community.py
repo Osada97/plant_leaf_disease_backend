@@ -29,6 +29,18 @@ def getCommunityPosts(req: Request, db: session):
     if req.headers.get('id'):
         id = req.headers.get('id')
         for i in range(len(posts)):
+            postId = int(posts[i].id)
+            vote = db.query(models.VotePost).filter(
+                (models.VotePost.postId == postId) & (models.VotePost.userId == id)).first()
+
+            if vote is not None:
+                if vote.is_up_vote == True:
+                    setattr(posts[i], "isUpVoted", True)
+                    setattr(posts[i], "isDownVoted", False)
+                elif vote.is_down_vote == True:
+                    setattr(posts[i], "isUpVoted", False)
+                    setattr(posts[i], "isDownVoted", True)
+
             if posts[i].userId == int(id):
                 setattr(posts[i], "isUser", True)
             else:
@@ -100,15 +112,55 @@ def removeCommunityPost(id: int, req: Request, db: session):
     db.commit()
     return {'details': f'{id} Post is deleted successfully'}
 
+# removes posts comment
+
+
+def removeCommunityPostsComment(postId: int, commentId: int, req: Request, db: session):
+    post = db.query(models.CommunityPost).filter(
+        models.CommunityPost.id == postId).first()
+
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+
+    if req.headers.get('id') is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
+    if int(post.userId) != int(req.headers.get('id')):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"{postId} Post not belong to this user")
+
+    comments = db.query(models.Comments).filter(
+        models.Comments.id == commentId).first()
+
+    if comments is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+
+    db.query(models.Comments).filter(
+        models.Comments.id == commentId).delete(synchronize_session=False)
+    db.commit()
+
+    return {'details': f'{postId} Post {commentId} comment is deleted successfully'}
+
 
 # add up vote
+
+
 def addUpVoteForPost(id: int, req: Request, db: session):
+    post = db.query(models.CommunityPost).filter(
+        models.CommunityPost.id == id).first()
+
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Id")
+
     if req.headers.get('id') is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
 
     userId = int(req.headers.get('id'))
-    votes = db.query(models.VotePost).filter((models.VotePost.id ==
+    votes = db.query(models.VotePost).filter((models.VotePost.postId ==
                                              id) & (models.VotePost.userId == userId)).first()
 
     if votes is None:
@@ -137,15 +189,15 @@ def addUpVoteForPost(id: int, req: Request, db: session):
             return {"details": f'added vote for post {votes.postId}'}
 
     elif votes.is_up_vote == True:
-        raise HTTPException(
-            status_code=status.HTTP_304_NOT_MODIFIED, detail=f"Up vote already added")
+        CountVote(db, id)
+        return {"details": f'Up vote already added for post {votes.postId}'}
 
 
 def CountVote(db: session, id):
     up_count = db.query(models.VotePost).filter(
-        (models.VotePost.id == id) & (models.VotePost.is_up_vote == True)).count()
+        (models.VotePost.postId == id) & (models.VotePost.is_up_vote == True)).count()
     down_count = db.query(models.VotePost).filter(
-        (models.VotePost.id == id) & (models.VotePost.is_down_vote == True)).count()
+        (models.VotePost.postId == id) & (models.VotePost.is_down_vote == True)).count()
 
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
@@ -167,17 +219,24 @@ def CountVote(db: session, id):
 
 
 def addDownVoteForPost(id: int, req: Request, db: session):
+    post = db.query(models.CommunityPost).filter(
+        models.CommunityPost.id == id).first()
+
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Id")
+
     if req.headers.get('id') is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
 
     userId = int(req.headers.get('id'))
-    votes = db.query(models.VotePost).filter((models.VotePost.id ==
+    votes = db.query(models.VotePost).filter((models.VotePost.postId ==
                                              id) & (models.VotePost.userId == userId)).first()
 
     if votes is None:
         vote_post = models.VotePost(
-            postId=id, is_up_vote=True, userId=userId)
+            postId=id, is_down_vote=True, userId=userId)
         db.add(vote_post)
         db.commit()
         db.refresh(vote_post)
@@ -201,15 +260,14 @@ def addDownVoteForPost(id: int, req: Request, db: session):
             return {"details": f'added down vote for post {votes.postId}'}
 
     elif votes.is_down_vote == True:
-        raise HTTPException(
-            status_code=status.HTTP_304_NOT_MODIFIED, detail=f"Up vote already added")
+        return {"details": f'Down vote already added for post {votes.postId}'}
 
 
 def CountDownVote(db: session, id):
     up_count = db.query(models.VotePost).filter(
-        (models.VotePost.id == id) & (models.VotePost.is_up_vote == True)).count()
+        (models.VotePost.postId == id) & (models.VotePost.is_up_vote == True)).count()
     down_count = db.query(models.VotePost).filter(
-        (models.VotePost.id == id) & (models.VotePost.is_down_vote == True)).count()
+        (models.VotePost.postId == id) & (models.VotePost.is_down_vote == True)).count()
 
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()

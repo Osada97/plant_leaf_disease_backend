@@ -1,4 +1,3 @@
-from urllib import request
 import models
 from fastapi import Request, status, HTTPException
 from sqlalchemy.orm import session
@@ -45,6 +44,18 @@ def getCommentOnId(id: int, req: Request, db: session):
     if req.headers.get('id'):
         id = req.headers.get('id')
         for i in range(len(comment)):
+            commentId = int(comment[i].id)
+            vote = db.query(models.VoteComment).filter(
+                (models.VoteComment.commentId == commentId) & (models.VoteComment.userId == id)).first()
+
+            if vote is not None:
+                if vote.is_up_vote == True:
+                    setattr(comment[i], "isUpVoted", True)
+                    setattr(comment[i], "isDownVoted", False)
+                elif vote.is_down_vote == True:
+                    setattr(comment[i], "isUpVoted", False)
+                    setattr(comment[i], "isDownVoted", True)
+
             if comment[i].userid == int(id):
                 setattr(comment[i], "isUser", True)
             else:
@@ -105,3 +116,112 @@ def updateCommentId(id: int, req: Request, request: CreateComment, db: session):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Somthing Went Wrong')
+# adding up vote
+
+
+def addVoteForComment(id: int, req: Request, db: session):
+    comment = db.query(models.Comments).filter(
+        models.Comments.id == id).first()
+
+    if comment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
+
+    if req.headers.get('id') is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
+
+    userid = int(req.headers.get('id'))
+
+    vote = db.query(models.VoteComment).filter(
+        (models.VoteComment.commentId == id) & (models.VoteComment.userId == userid)).first()
+
+    if vote is None:
+        add_vote = models.VoteComment(
+            commentId=id, is_up_vote=True, userId=userid)
+
+        db.add(add_vote)
+        db.commit()
+        db.refresh(add_vote)
+
+        if countUpVote(id, db, comment):
+            return {"details": f'added up vote for comment {add_vote.id}'}
+
+    elif vote.is_down_vote == True:
+        vote.is_down_vote = False
+        vote.is_up_vote = True
+
+        db.add(vote)
+        db.commit()
+        db.refresh(vote)
+
+        if countUpVote(id, db, comment):
+            return {"details": f'added up vote for comment {comment.id}'}
+
+    elif vote.is_up_vote == True:
+        return {"details": f'up vote already added for comment {comment.id}'}
+
+
+def countUpVote(commentId, db, comment):
+    up_count = db.query(models.VoteComment).filter(
+        (models.VoteComment.commentId == commentId) & (models.VoteComment.is_up_vote == True)).count()
+    down_count = db.query(models.VoteComment).filter(
+        (models.VoteComment.commentId == commentId) & (models.VoteComment.is_down_vote == True)).count()
+
+    print(up_count, down_count)
+
+    comment.up_vote_count = int(up_count)
+    comment.down_vote_count = int(down_count)
+
+    try:
+        db.add(comment)
+        db.commit()
+        db.refresh(comment)
+        return comment
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f'Somthing Went Wrong')
+
+
+def addDownVoteForComment(id: int, req: Request, db: session):
+    comment = db.query(models.Comments).filter(
+        models.Comments.id == id).first()
+
+    if comment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
+
+    if req.headers.get('id') is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
+
+    userid = int(req.headers.get('id'))
+
+    vote = db.query(models.VoteComment).filter(
+        (models.VoteComment.commentId == id) & (models.VoteComment.userId == userid)).first()
+
+    if vote is None:
+        add_vote = models.VoteComment(
+            commentId=id, is_down_vote=True, userId=userid)
+
+        db.add(add_vote)
+        db.commit()
+        db.refresh(add_vote)
+
+        if countUpVote(id, db, comment):
+            return {"details": f'added down vote for comment {add_vote.id}'}
+
+    elif vote.is_up_vote == True:
+        vote.is_up_vote = False
+        vote.is_down_vote = True
+
+        db.add(vote)
+        db.commit()
+        db.refresh(vote)
+
+        if countUpVote(id, db, comment):
+            return {"details": f'added down vote for comment {vote.id}'}
+
+    elif vote.is_down_vote == True:
+        return {"details": f'down vote already added for comment {vote.id}'}

@@ -21,6 +21,19 @@ class ShowCommunityPost(CommunityPost):
     down_vote_count: int
     owner: GetUser
     isUser: Optional[bool] = False
+    isUpVoted: Optional[bool] = False
+    isDownVoted: Optional[bool] = False
+
+    class Config():
+        orm_mode = True
+
+
+class ShowCommunityPostOnId(CommunityPost):
+    post_date: datetime
+    up_vote_count: int
+    is_approve: bool
+    down_vote_count: int
+    owner: GetUser
 
     class Config():
         orm_mode = True
@@ -32,6 +45,8 @@ class Comment(BaseModel):
     down_vote_count: int
     up_vote_count: int
     isUser: Optional[bool] = False
+    isUpVoted: Optional[bool] = False
+    isDownVoted: Optional[bool] = False
     user: GetUser
 
     class Config():

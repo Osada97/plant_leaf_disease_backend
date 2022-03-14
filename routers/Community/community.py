@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, Request, File, UploadFile
 from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
-from repository.Community.comments import addCommentToPost, getCommentOnId, removeCommentId, updateCommentId
-from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeImageFromPost, updateCommunityPost
+from repository.Community.comments import addCommentToPost, addDownVoteForComment, addVoteForComment, getCommentOnId, removeCommentId, updateCommentId
+from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, updateCommunityPost
 from repository.Community import userAuth
-from schemas.community_schemas import CommunityPost, ShowComment, ShowCommunityPost, CreateComment, Comment
+from schemas.community_schemas import CommunityPost, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
 
 router = APIRouter(
     prefix='/community',
@@ -21,7 +21,7 @@ def getCommunityPost(req: Request, db: session = Depends(get_db)):
 
 
 # user belong posts
-@router.get('/getuserposts/{id}', response_model=List[ShowCommunityPost])
+@router.get('/getuserposts/{id}', response_model=List[ShowCommunityPostOnId])
 def getUsersPost(id: int, db: session = Depends(get_db)):
     return getCommunityPostById(id, db)
 
@@ -43,6 +43,13 @@ def updatePost(id: int, req: Request, request: CommunityPost, db: session = Depe
 @router.delete('/removeposts/{id}')
 def removePost(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return removeCommunityPost(id, req, db)
+
+# remove comments that post have
+
+
+@router.delete('/removepostscomment/{postId}/{commentId}')
+def removePostsComment(postId: int, commentId: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeCommunityPostsComment(postId, commentId, req, db)
 
 # add up vote
 
@@ -97,7 +104,17 @@ def removeComment(id: int, req: Request, db: session = Depends(get_db), new_curr
     return removeCommentId(id, req, db)
 
 # add up vote for commenet
+
+
+@router.post('/comment/upvote/{id}')
+def addVote(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addVoteForComment(id, req, db)
+
+
 # add down vote for commenet
+@router.post('/comment/downvote/{id}')
+def addVote(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addDownVoteForComment(id, req, db)
 
 # add image to comment
 # remove image to comment
