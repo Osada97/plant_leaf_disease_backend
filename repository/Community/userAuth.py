@@ -7,7 +7,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.exc import IntegrityError
 import models
 
-#create account
+# create account
+
+
 def createNewUserAccount(request: user_schemas.User, db: session):
     # check username is already exists
     user_exists = db.query(models.User).filter(models.User.username ==
@@ -40,7 +42,9 @@ def createNewUserAccount(request: user_schemas.User, db: session):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=f"Somthing Went Wrong")
 
-#login user
+# login user
+
+
 def loginUser(request: user_schemas.UserLogin, db: session):
     user = db.query(models.User).filter(
         models.User.username == request.username).first()
@@ -54,10 +58,12 @@ def loginUser(request: user_schemas.UserLogin, db: session):
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Password")
 
     access_token = create_access_token(
-        data={"sub": user.username, "userType": "user"})
+        data={"sub": user.username, "id": user.id, "userType": "user"})
     return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": user.profile_picture}}
 
-#update profile details
+# update profile details
+
+
 def updateProfileDetails(id: int, request: user_schemas.ProfileUpdate,  db: session):
     user = db.query(models.User).filter(models.User.id == id).first()
 
@@ -82,7 +88,9 @@ def updateProfileDetails(id: int, request: user_schemas.ProfileUpdate,  db: sess
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Somthing Went Wrong')
 
-#changed password
+# changed password
+
+
 def changedUserPassword(id: int, request: user_schemas.UpdatePassword,  db: session):
     user = db.query(models.User).filter(models.User.id == id).first()
 

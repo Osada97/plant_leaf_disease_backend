@@ -9,4 +9,5 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+    id: Optional[int] = None
     userType: Optional[str] = None

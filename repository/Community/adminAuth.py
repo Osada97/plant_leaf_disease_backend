@@ -34,7 +34,7 @@ def adminLoginToAccount(request: admin_schemas.Login, db: Session):
 
     # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username, "userType": "admin"})
+        data={"sub": user.username, "id": user.id, "userType": "admin"})
     return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "user name": user.username, "profile picture": user.profile_picture}}
 
 # admin update account details
