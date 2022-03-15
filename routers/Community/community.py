@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, Request, File, UploadFile
 from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
-from repository.Community.comments import addCommentToPost, addDownVoteForComment, addVoteForComment, getCommentOnId, removeCommentId, updateCommentId
+from repository.Community.comments import RemoveImageInComment, addCommentToPost, addDownVoteForComment, addImageToComment, addVoteForComment, getCommentOnId, removeCommentId, updateCommentId
 from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, updateCommunityPost
 from repository.Community import userAuth
-from schemas.community_schemas import CommunityPost, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
+from schemas.community_schemas import CommunityPost, PostBool, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
 
 router = APIRouter(
     prefix='/community',
@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 # get new post
-@router.get('/getpost', response_model=List[ShowCommunityPost])
+@router.get('/getpost', response_model=List[PostBool])
 def getCommunityPost(req: Request, db: session = Depends(get_db)):
     return getCommunityPosts(req, db)
 
@@ -27,14 +27,14 @@ def getUsersPost(id: int, db: session = Depends(get_db)):
 
 
 # create new post
-@router.post('/create/{id}', response_model=CommunityPost)
+@router.post('/create/{id}', response_model=ShowCommunityPost)
 def createCommunityPost(id: int, request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return createNewCommunityPost(id, request, db)
 
 # update post
 
 
-@router.put('/updatepost/{id}', response_model=CommunityPost)
+@router.put('/updatepost/{id}', response_model=ShowCommunityPost)
 def updatePost(id: int, req: Request, request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return updateCommunityPost(id, req, request, db)
 # remove post
@@ -117,4 +117,15 @@ def addVote(id: int, req: Request, db: session = Depends(get_db), new_current_us
     return addDownVoteForComment(id, req, db)
 
 # add image to comment
+
+
+@router.post('/comment/addimage/{id}')
+def addImage(id: int, db: session = Depends(get_db), file: UploadFile = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addImageToComment(id, db, file, new_current_user)
+
 # remove image to comment
+
+
+@router.delete('/comment/removeimage/{id}')
+def removeImage(id: int, db: session = Depends(get_db),  new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return RemoveImageInComment(id, db, new_current_user)

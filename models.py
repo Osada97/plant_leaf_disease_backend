@@ -143,8 +143,21 @@ class Comments(Base):
         'users.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
 
     relate_post = relationship("CommunityPost", back_populates='comment')
+    image = relationship("CommunityCommentImage",
+                         back_populates='relate_image_comment')
     user = relationship("User", back_populates='user_comments')
     comment_vote = relationship("VoteComment", back_populates='voteComment')
+
+
+class CommunityCommentImage(Base):
+    __tablename__ = "community_comment_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    image_name = Column(Text)
+    commentsId = Column(Integer, ForeignKey('community_comments.id',
+                                            ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+
+    relate_image_comment = relationship("Comments", back_populates='image')
 
 
 class VotePost(Base):

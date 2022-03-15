@@ -15,11 +15,18 @@ class CommunityPost(BaseModel):
 
 
 class ShowCommunityPost(CommunityPost):
+    id: int
     post_date: datetime
     up_vote_count: int
     is_approve: bool
     down_vote_count: int
     owner: GetUser
+
+    class Config():
+        orm_mode = True
+
+
+class PostBool(ShowCommunityPost):
     isUser: Optional[bool] = False
     isUpVoted: Optional[bool] = False
     isDownVoted: Optional[bool] = False
@@ -58,6 +65,7 @@ class CreateComment(BaseModel):
 
 
 class ShowComment(CreateComment):
+    id: int
     comment_date: datetime
 
     class Config():

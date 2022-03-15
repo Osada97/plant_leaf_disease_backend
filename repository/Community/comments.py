@@ -1,4 +1,7 @@
 import models
+import os
+import shutil
+import time
 from fastapi import Request, status, HTTPException
 from sqlalchemy.orm import session
 from sqlalchemy.exc import IntegrityError
@@ -161,6 +164,8 @@ def addVoteForComment(id: int, req: Request, db: session):
     elif vote.is_up_vote == True:
         return {"details": f'up vote already added for comment {comment.id}'}
 
+# calculate up vote and down vote count and update table
+
 
 def countUpVote(commentId, db, comment):
     up_count = db.query(models.VoteComment).filter(
@@ -182,6 +187,8 @@ def countUpVote(commentId, db, comment):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Somthing Went Wrong')
+
+# add down vote for comment
 
 
 def addDownVoteForComment(id: int, req: Request, db: session):
@@ -225,3 +232,100 @@ def addDownVoteForComment(id: int, req: Request, db: session):
 
     elif vote.is_down_vote == True:
         return {"details": f'down vote already added for comment {vote.id}'}
+
+# add image to comment
+
+
+def addImageToComment(id: int, db: session, file, new_current_user):
+    comment = db.query(models.Comments).filter(
+        models.Comments.id == id).first()
+
+    if comment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
+
+    userId = new_current_user.id
+
+    if userId != comment.userid:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"This User Not Belong Comment {id}")
+
+    # adding image
+    # check file type
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                            detail=f'{file.content_type} is invalid file type please upload jpeg and png files.')
+
+    path = './assets/community_post_comment_images'
+    # check specific file directory exits
+    isExist = os.path.exists(path)
+
+    if not isExist:
+        # create new directory
+        os.makedirs(path)
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filenames = timestr+file.filename
+    file_location = f'{path}/{filenames}'
+    with open(file_location, 'wb') as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    new_image = models.CommunityCommentImage(
+        image_name=filenames, commentsId=id)
+
+    try:
+        db.add(new_image)
+        db.commit()
+        db.refresh(new_image)
+
+        return {"msg": "Add new Image successfully", "details": new_image}
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'id {id} is not in the disease table please check the id and try again')
+
+# remove comment
+
+
+def RemoveImageInComment(id: int, db: session,  new_current_user):
+    commentImage = db.query(models.CommunityCommentImage).filter(
+        models.CommunityCommentImage.id == id).first()
+
+    if commentImage is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no image in this id")
+
+    # get parent comment that related to image
+    comment = db.query(models.Comments).filter(
+        models.Comments.id == commentImage.commentsId).first()
+
+    if comment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comment belong this image")
+
+    userId = new_current_user.id
+
+    if userId != comment.userid:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"This User Not Belong Comment {id}")
+
+    # remove image
+
+    path = './assets/community_post_comment_images'
+    # # check specific file directory exits
+    if os.path.exists(path):
+        file_location = path + '/'+commentImage.image_name
+        if os.path.exists(file_location):
+            # remove the file from server
+            os.remove(file_location)
+            # remove row in the table
+            db.query(models.CommunityCommentImage).filter(
+                models.CommunityCommentImage.id == id).delete(synchronize_session=False)
+            db.commit()
+            return {'detail': f'{id} image deleted'}
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f'{commentImage.image_name} is not in the server')
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'There is no image in the server')

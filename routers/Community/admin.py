@@ -42,3 +42,6 @@ def adminUpdateNewPassword(id: int, request: AdminUpdatePassword, db: session = 
     return adminUpdatePassword(id, request, db)
 
 # admin approve post
+# admin remove post before approve
+# admin remove post
+# admin remove comment in specific post

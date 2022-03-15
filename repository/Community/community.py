@@ -346,7 +346,8 @@ def removeImageFromPost(id: int, req: Request,  db: session):
 
     if plant_image is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'There is no id related to this table')
+                            detail=f'id {id} is not in the disease image table please check the id and try again')
+
     # get post using plant image post id
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == plant_image.postId).first()
@@ -358,10 +359,6 @@ def removeImageFromPost(id: int, req: Request,  db: session):
     if int(post.userId) != int(req.headers.get('id')):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'This user cannot remove post image')
-
-    if plant_image is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'id {id} is not in the disease image table please check the id and try again')
 
     path = './assets/community_post_images'
     if os.path.exists(path):
