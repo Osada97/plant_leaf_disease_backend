@@ -70,3 +70,11 @@ class ShowComment(CreateComment):
 
     class Config():
         orm_mode = True
+
+
+class PostImages(BaseModel):
+    id: int
+    image_name: str
+
+    class Config():
+        orm_mode = True
