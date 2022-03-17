@@ -35,47 +35,47 @@ def createCommunityPost(id: int, request: CommunityPost, db: session = Depends(g
 
 
 @router.put('/updatepost/{id}', response_model=ShowCommunityPost)
-def updatePost(id: int, req: Request, request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return updateCommunityPost(id, req, request, db)
+def updatePost(id: int, request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return updateCommunityPost(id, new_current_user, request, db)
 # remove post
 
 
 @router.delete('/removeposts/{id}')
-def removePost(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return removeCommunityPost(id, req, db)
+def removePost(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeCommunityPost(id, new_current_user, db)
 
 # remove comments that post have
 
 
 @router.delete('/removepostscomment/{postId}/{commentId}')
-def removePostsComment(postId: int, commentId: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return removeCommunityPostsComment(postId, commentId, req, db)
+def removePostsComment(postId: int, commentId: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeCommunityPostsComment(postId, commentId, new_current_user, db)
 
 # add up vote
 
 
 @router.post('/addvote/{id}')
-def addVote(id: int, req: Request,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return addUpVoteForPost(id, req, db)
+def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addUpVoteForPost(id, new_current_user, db)
 
 
 # add down vote
 @router.post('/adddownvote/{id}')
-def addVote(id: int, req: Request,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return addDownVoteForPost(id, req, db)
+def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addDownVoteForPost(id, new_current_user, db)
 
 # add image to post
 
 
 @router.post('/addimagetopost/{id}')
-def addImagePost(id: int, req: Request,  db: session = Depends(get_db), file: UploadFile = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return addImageToCommunityPost(id, req, db, file)
+def addImagePost(id: int,  db: session = Depends(get_db), file: UploadFile = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addImageToCommunityPost(id, new_current_user, db, file)
 # remove image from post
 
 
 @router.delete('/removeimageinpost/{id}')
-def addImagePost(id: int, req: Request,  db: session = Depends(get_db),  new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return removeImageFromPost(id, req, db)
+def addImagePost(id: int,  db: session = Depends(get_db),  new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeImageFromPost(id, new_current_user, db)
 
 # create new comment
 
@@ -94,27 +94,27 @@ def getComment(id: int, req: Request,  db: session = Depends(get_db)):
 
 
 @router.put('/comment/update/{id}')
-def updateComment(id: int, req: Request, request: CreateComment, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return updateCommentId(id, req, request, db)
+def updateComment(id: int, request: CreateComment, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return updateCommentId(id, new_current_user, request, db)
 
 
 # remove  comment
 @router.delete('/comment/delete/{id}')
-def removeComment(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return removeCommentId(id, req, db)
+def removeComment(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeCommentId(id, new_current_user, db)
 
 # add up vote for commenet
 
 
 @router.post('/comment/upvote/{id}')
-def addVote(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return addVoteForComment(id, req, db)
+def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addVoteForComment(id, new_current_user, db)
 
 
 # add down vote for commenet
 @router.post('/comment/downvote/{id}')
-def addVote(id: int, req: Request, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return addDownVoteForComment(id, req, db)
+def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return addDownVoteForComment(id, new_current_user, db)
 
 # add image to comment
 

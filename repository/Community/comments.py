@@ -69,7 +69,7 @@ def getCommentOnId(id: int, req: Request, db: session):
 # remove comment based on comment id
 
 
-def removeCommentId(id: int, req: Request, db: session):
+def removeCommentId(id: int, new_current_user, db: session):
     comment = db.query(models.Comments).filter(
         models.Comments.id == id).first()
 
@@ -77,11 +77,7 @@ def removeCommentId(id: int, req: Request, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    if int(req.headers.get('id')) != int(comment.userid):
+    if new_current_user.id != int(comment.userid):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"{id} Comment not belong to this user")
 
@@ -93,7 +89,7 @@ def removeCommentId(id: int, req: Request, db: session):
 
 
 # update comment based on id
-def updateCommentId(id: int, req: Request, request: CreateComment, db: session):
+def updateCommentId(id: int, new_current_user, request: CreateComment, db: session):
     comment = db.query(models.Comments).filter(
         models.Comments.id == id).first()
 
@@ -101,11 +97,7 @@ def updateCommentId(id: int, req: Request, request: CreateComment, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    if int(req.headers.get('id')) != int(comment.userid):
+    if new_current_user.id != int(comment.userid):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"{id} Comment not belong to this user")
 
@@ -122,7 +114,7 @@ def updateCommentId(id: int, req: Request, request: CreateComment, db: session):
 # adding up vote
 
 
-def addVoteForComment(id: int, req: Request, db: session):
+def addVoteForComment(id: int, new_current_user, db: session):
     comment = db.query(models.Comments).filter(
         models.Comments.id == id).first()
 
@@ -130,11 +122,7 @@ def addVoteForComment(id: int, req: Request, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    userid = int(req.headers.get('id'))
+    userid = new_current_user.id
 
     vote = db.query(models.VoteComment).filter(
         (models.VoteComment.commentId == id) & (models.VoteComment.userId == userid)).first()
@@ -191,7 +179,7 @@ def countUpVote(commentId, db, comment):
 # add down vote for comment
 
 
-def addDownVoteForComment(id: int, req: Request, db: session):
+def addDownVoteForComment(id: int, new_current_user, db: session):
     comment = db.query(models.Comments).filter(
         models.Comments.id == id).first()
 
@@ -199,11 +187,7 @@ def addDownVoteForComment(id: int, req: Request, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no comments in this id")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    userid = int(req.headers.get('id'))
+    userid = new_current_user.id
 
     vote = db.query(models.VoteComment).filter(
         (models.VoteComment.commentId == id) & (models.VoteComment.userId == userid)).first()

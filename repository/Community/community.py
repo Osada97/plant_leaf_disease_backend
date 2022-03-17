@@ -60,7 +60,7 @@ def getCommunityPostById(id: int, db: session):
 # update community posts
 
 
-def updateCommunityPost(id: int, req: Request, request: CommunityPost, db: session):
+def updateCommunityPost(id: int, new_current_user, request: CommunityPost, db: session):
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
 
@@ -68,11 +68,7 @@ def updateCommunityPost(id: int, req: Request, request: CommunityPost, db: sessi
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    if int(req.headers.get('id')) != int(post.userId):
+    if new_current_user.id != int(post.userId):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"{id} Post not belong to this user")
 
@@ -91,7 +87,7 @@ def updateCommunityPost(id: int, req: Request, request: CommunityPost, db: sessi
 # remove community post
 
 
-def removeCommunityPost(id: int, req: Request, db: session):
+def removeCommunityPost(id: int, new_current_user, db: session):
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
 
@@ -99,11 +95,7 @@ def removeCommunityPost(id: int, req: Request, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    if int(req.headers.get('id')) != int(post.userId):
+    if new_current_user.id != int(post.userId):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"{id} Post not belong to this user")
 
@@ -115,7 +107,7 @@ def removeCommunityPost(id: int, req: Request, db: session):
 # removes posts comment
 
 
-def removeCommunityPostsComment(postId: int, commentId: int, req: Request, db: session):
+def removeCommunityPostsComment(postId: int, commentId: int, new_current_user, db: session):
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == postId).first()
 
@@ -123,10 +115,7 @@ def removeCommunityPostsComment(postId: int, commentId: int, req: Request, db: s
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-    if int(post.userId) != int(req.headers.get('id')):
+    if int(post.userId) != new_current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"{postId} Post not belong to this user")
 
@@ -147,7 +136,7 @@ def removeCommunityPostsComment(postId: int, commentId: int, req: Request, db: s
 # add up vote
 
 
-def addUpVoteForPost(id: int, req: Request, db: session):
+def addUpVoteForPost(id: int, new_current_user, db: session):
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
 
@@ -155,11 +144,7 @@ def addUpVoteForPost(id: int, req: Request, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Id")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    userId = int(req.headers.get('id'))
+    userId = new_current_user.id
     votes = db.query(models.VotePost).filter((models.VotePost.postId ==
                                              id) & (models.VotePost.userId == userId)).first()
 
@@ -218,7 +203,7 @@ def CountVote(db: session, id):
 # added down vote
 
 
-def addDownVoteForPost(id: int, req: Request, db: session):
+def addDownVoteForPost(id: int, new_current_user, db: session):
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
 
@@ -226,11 +211,7 @@ def addDownVoteForPost(id: int, req: Request, db: session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Id")
 
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
-
-    userId = int(req.headers.get('id'))
+    userId = new_current_user.id
     votes = db.query(models.VotePost).filter((models.VotePost.postId ==
                                              id) & (models.VotePost.userId == userId)).first()
 
@@ -288,10 +269,7 @@ def CountDownVote(db: session, id):
 # add image to post
 
 
-def addImageToCommunityPost(id: int, req: Request,  db: session, file):
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
+def addImageToCommunityPost(id: int, new_current_user, db: session, file):
 
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
@@ -299,6 +277,10 @@ def addImageToCommunityPost(id: int, req: Request,  db: session, file):
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Id Is Invalid")
+
+    if int(post.userId) != new_current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'This user cannot add post image')
 
     # check file type
     if file.content_type not in ["image/jpeg", "image/png"]:
@@ -335,10 +317,7 @@ def addImageToCommunityPost(id: int, req: Request,  db: session, file):
 # remove image from post
 
 
-def removeImageFromPost(id: int, req: Request,  db: session):
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
+def removeImageFromPost(id: int, new_current_user,  db: session):
 
     # get the specific file name
     plant_image = db.query(models.CommunityPostImages).filter(
@@ -356,7 +335,7 @@ def removeImageFromPost(id: int, req: Request,  db: session):
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                             detail=f'There is Nno post related to the {id}')
 
-    if int(post.userId) != int(req.headers.get('id')):
+    if int(post.userId) != new_current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'This user cannot remove post image')
 
