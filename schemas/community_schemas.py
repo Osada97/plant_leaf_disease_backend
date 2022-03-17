@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 from datetime import datetime
 from schemas.user_schemas import GetUser
@@ -14,6 +14,14 @@ class CommunityPost(BaseModel):
         orm_mode = True
 
 
+class CommunityPostImage(BaseModel):
+    id: int
+    image_name: str
+
+    class Config():
+        orm_mode = True
+
+
 class ShowCommunityPost(CommunityPost):
     id: int
     post_date: datetime
@@ -21,6 +29,7 @@ class ShowCommunityPost(CommunityPost):
     is_approve: bool
     down_vote_count: int
     owner: GetUser
+    images: List[CommunityPostImage] = []
 
     class Config():
         orm_mode = True
@@ -41,9 +50,15 @@ class ShowCommunityPostOnId(CommunityPost):
     is_approve: bool
     down_vote_count: int
     owner: GetUser
+    images: List[CommunityPostImage] = []
 
     class Config():
         orm_mode = True
+
+
+class CommentImage(BaseModel):
+    id: int
+    image_name: str
 
 
 class Comment(BaseModel):
@@ -55,6 +70,7 @@ class Comment(BaseModel):
     isUpVoted: Optional[bool] = False
     isDownVoted: Optional[bool] = False
     user: GetUser
+    image: List[CommentImage] = []
 
     class Config():
         orm_mode = True
