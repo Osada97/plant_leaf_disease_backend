@@ -246,7 +246,7 @@ def addImageToComment(id: int, db: session, file, new_current_user):
         os.makedirs(path)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    filenames = timestr+file.filename
+    filenames = timestr+file.filename.replace(" ", "")
     file_location = f'{path}/{filenames}'
     with open(file_location, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)

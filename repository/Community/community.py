@@ -298,7 +298,7 @@ def addImageToCommunityPost(id: int, new_current_user, db: session, file):
         os.makedirs(path)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    filenames = timestr+file.filename
+    filenames = timestr+file.filename.replace(" ", "")
     file_location = f'{path}/{filenames}'
     with open(file_location, 'wb') as buffer:
         shutil.copyfileobj(file.file, buffer)
