@@ -27,10 +27,20 @@ class PlantMedicine(BaseModel):
 # details of the plant medicine and disease (relationship)
 
 
+class DiseaseImages(BaseModel):
+    id: int
+    image_name: str
+
+    class Config():
+        orm_mode = True
+
+
 class ShowDetails(BaseModel):
     id: int
     desease_name: str
     desease_short_description: str
+    disease_image: List[DiseaseImages] = []
+    default_image: Optional[str] = None
     symptoms: Optional[str] = None
     description: Optional[str] = None
     belong_plant: Plant
