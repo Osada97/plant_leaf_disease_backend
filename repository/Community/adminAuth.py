@@ -162,7 +162,7 @@ def adminGetApprovedPosts(db: Session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"There are no posts")
 
-    return posts
+    return getPostImage(posts)
 # admin get disapproved posts
 
 
@@ -174,7 +174,7 @@ def adminGetDisapprovedPosts(db: Session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"There are no posts")
 
-    return posts
+    return getPostImage(posts)
 
 # admin approve post
 
@@ -306,6 +306,5 @@ def getPostImage(post):
             s.append(
                 {'default_image': f'{Environment.getBaseEnv()}/assets/community_post_images/asd'})
             new_post[i].image = s
-            print(type(new_post[i].images))
 
     return new_post
