@@ -1,12 +1,10 @@
 from typing import List
-from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, File, UploadFile
 from oauth2 import get_current_user
-from repository.Community.adminAuth import adminApprovePost, adminCreateAccount, adminDisapprovePost, adminGetAllPosts, adminGetApprovedPosts, adminGetDisapprovedPosts, adminLoginToAccount, adminRemoveComments, adminRemovePosts, adminUpdateAccountDetails, adminUpdatePassword
+from repository.Community.adminAuth import adminApprovePost, adminCreateAccount, adminDisapprovePost, adminGetAllPosts, adminGetApprovedPosts, adminGetDisapprovedPosts, adminLoginToAccount, adminRemoveComments, adminRemovePosts, adminUpdateAccountDetails, adminUpdatePassword, adminUploadProfilePicture
 from sqlalchemy.orm import session
 from database import get_db
-from schemas.admin_schemas import AdminGetPosts, AdminUpdatePassword, CreateAdmin,  Admin, Login
-
+from schemas.admin_schemas import AdminGetPosts, AdminUpdate, AdminUpdatePassword, CreateAdmin,  Admin, Login
 
 router = APIRouter(
     tags=["Admin Auth"],
@@ -33,7 +31,7 @@ def adminLoginAccount(request: Login, db: session = Depends(get_db)):
 
 # admin upload profile picture
 @router.put('/updatedetails/{id}', response_model=Admin)
-def adminUpdateAccount(id: int, request: Admin, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
+def adminUpdateAccount(id: int, request: AdminUpdate, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
     return adminUpdateAccountDetails(id, request, db)
 
 
@@ -41,6 +39,13 @@ def adminUpdateAccount(id: int, request: Admin, db: session = Depends(get_db), c
 @router.put('/updatepassword/{id}', response_model=Admin)
 def adminUpdateNewPassword(id: int, request: AdminUpdatePassword, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
     return adminUpdatePassword(id, request, db)
+
+# adding image to admin
+
+
+@router.post('/uploadprofilepic', response_model=Admin)
+def admingUploadImage(db: session = Depends(get_db), current_user: Login = Depends(get_current_user), file: UploadFile = File(..., media_type='image/jpeg')):
+    return adminUploadProfilePicture(db, current_user, file)
 
 # admin get all post
 

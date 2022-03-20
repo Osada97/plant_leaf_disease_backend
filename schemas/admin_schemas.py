@@ -23,6 +23,13 @@ class Admin(BaseModel):
         orm_mode = True
 
 
+class AdminUpdate(BaseModel):
+    username: Optional[str] = Field(None, min_length=1, max_length=155)
+
+    class Config():
+        orm_mode = True
+
+
 class AdminUpdatePassword(BaseModel):
     old_password: str = Field(..., min_length=6)
     new_password: str = Field(..., min_length=6)
@@ -38,6 +45,7 @@ class AdminGetPosts(BaseModel):
     up_vote_count: int
     is_approve: bool
     images: List[PostImages] = []
+    image: Optional[List] = []
 
     class Config():
         orm_mode = True

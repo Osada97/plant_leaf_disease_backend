@@ -71,7 +71,7 @@ class Admin(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(155), nullable=False)
     password = Column(Text, nullable=False)
-    profile_picture = Column(Text)
+    profile_picture = Column(Text, default='admin.png')
 
 
 # **USER model**
@@ -86,7 +86,7 @@ class User(Base):
     phone_number = Column(String(35), nullable=False)
     location = Column(String(155), nullable=False)
     password = Column(Text, nullable=False)
-    profile_picture = Column(Text)
+    profile_picture = Column(Text, default='user.png')
 
     posts = relationship("CommunityPost", back_populates='owner')
     user_comments = relationship("Comments", back_populates='user')

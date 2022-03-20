@@ -36,3 +36,5 @@ def updateUserProfile(id: int, request: user_schemas.ProfileUpdate, db: session 
 @router.put('/updatepassword/{id}')
 def changedPassword(id: int, request: user_schemas.UpdatePassword, db: session = Depends(get_db), new_current_user: loginUser = Depends(get_current_plantUser)):
     return changedUserPassword(id, request, db)
+
+# update profile picture
