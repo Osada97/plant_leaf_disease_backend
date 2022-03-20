@@ -1,3 +1,4 @@
+from env import Environment
 import models
 import os
 import shutil
@@ -18,13 +19,14 @@ def createNewCommunityPost(id, request: CommunityPost, db: session):
     db.commit()
     db.refresh(new_post)
 
-    return new_post
+    return getDefaultsImages(new_post)
 
 # get community posts
 
 
 def getCommunityPosts(req: Request, db: session):
-    posts = db.query(models.CommunityPost).all()
+    posts = db.query(models.CommunityPost).filter(
+        models.CommunityPost.is_approve == True).all()
 
     if req.headers.get('id'):
         id = req.headers.get('id')
@@ -46,16 +48,16 @@ def getCommunityPosts(req: Request, db: session):
             else:
                 setattr(posts[i], "isUser", False)
 
-    return posts
+    return getDefaultsImages(posts)
 
 # get community post based on user id
 
 
 def getCommunityPostById(id: int, db: session):
     posts = db.query(models.CommunityPost).filter(
-        models.CommunityPost.userId == id).all()
+        (models.CommunityPost.userId == id) and (models.CommunityPost.is_approve == True)).all()
 
-    return posts
+    return getDefaultsImages(posts)
 
 # update community posts
 
@@ -78,7 +80,7 @@ def updateCommunityPost(id: int, new_current_user, request: CommunityPost, db: s
     try:
         db.commit()
         db.refresh(post)
-        return post
+        return getDefaultsImages(post)
     except IntegrityError as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -356,3 +358,41 @@ def removeImageFromPost(id: int, new_current_user,  db: session):
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'There is no image in the server')
+
+# set default owner image
+
+
+def getDefaultsImages(posts):
+    if hasattr(posts, '__len__'):
+        for i in range(len(posts)):
+            if posts[i].owner.profile_picture is None or len(posts[i].owner.profile_picture) == 0:
+                posts[i].owner.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+            else:
+                posts[i].owner.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{posts[i].owner.profile_picture}"
+
+            if len(posts[i].images) > 0:
+                for j in range(len(posts[i].images)):
+                    posts[i].images[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{posts[i].images[j].image_name}'
+
+            else:
+                s = []
+                s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+                posts[i].default_image = s
+
+        return posts
+    else:
+        if posts.owner.profile_picture is None or len(posts.owner.profile_picture) == 0:
+            posts.owner.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+        else:
+            posts.owner.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{posts.owner.profile_picture}"
+
+        if len(posts.images) > 0:
+            for j in range(len(posts.images)):
+                posts.images[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{posts.images[j].image_name}'
+
+        else:
+            s = []
+            s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+            posts.default_image = s
+
+        return posts

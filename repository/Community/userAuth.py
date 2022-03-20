@@ -1,11 +1,14 @@
+import models
+import os
 from fastapi import HTTPException, status
 from JWTtoken import create_access_token
+from env import Environment
+from repository.Community.defaults import Defaults
 from schemas import user_schemas
 from sqlalchemy.orm import session
 from repository.Community.hashing import Hash
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.exc import IntegrityError
-import models
 
 # create account
 
@@ -28,7 +31,7 @@ def createNewUserAccount(request: user_schemas.User, db: session):
 
     else:
         new_user = models.User(first_name=request.first_name, last_name=request.last_name, username=request.username, email=request.email,
-                               phone_number=request.phone_number, location=request.location, password=Hash.bcrypt(request.password), profile_picture=request.profile_picture)
+                               phone_number=request.phone_number, location=request.location, password=Hash.bcrypt(request.password), profile_picture=Defaults.setDefaultImage(request, 'user'))
 
         try:
             db.add(new_user)
@@ -59,7 +62,7 @@ def loginUser(request: user_schemas.UserLogin, db: session):
 
     access_token = create_access_token(
         data={"sub": user.username, "id": user.id, "userType": "user"})
-    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": user.profile_picture}}
+    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": Defaults.getDefaultImage(user, 'user')}}
 
 # update profile details
 
@@ -77,7 +80,7 @@ def updateProfileDetails(id: int, request: user_schemas.ProfileUpdate,  db: sess
     user.email = request.email
     user.phone_number = request.phone_number
     user.location = request.location
-    user.profile_picture = request.profile_picture
+    user.profile_picture = Defaults.setDefaultImage(user, 'user')
 
     try:
         db.commit()
@@ -112,3 +115,22 @@ def changedUserPassword(id: int, request: user_schemas.UpdatePassword,  db: sess
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Somthing Went Wrong')
+
+# default image
+
+
+def getPostImage(post):
+    for i in range(len(post)):
+        new_post = list(post)
+        if len(new_post[i].images) > 0:
+            for j in range(len(new_post[i].images)):
+                new_post[i].images[j].image_name = f'{Environment.getBaseEnv()}/assets/community_post_images/{post[i].images[j].image_name}'
+
+        else:
+            s = []
+            s = list(new_post[i].images)
+            s.append(
+                {'default_image': f'{Environment.getBaseEnv()}/assets/community_post_images/asd'})
+            new_post[i].image = s
+
+    return new_post

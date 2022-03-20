@@ -9,6 +9,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from JWTtoken import create_access_token
 from sqlalchemy.exc import IntegrityError
+from repository.Community.defaults import Defaults
 from repository.Community.hashing import Hash
 from schemas import admin_schemas
 from schemas.community_schemas import PostImages
@@ -19,7 +20,7 @@ from schemas.community_schemas import PostImages
 def adminCreateAccount(request: admin_schemas.CreateAdmin, db: Session):
 
     new_admin = models.Admin(username=request.username,
-                             password=Hash.bcrypt(request.password), profile_picture=setDefaultImage(request))
+                             password=Hash.bcrypt(request.password), profile_picture=Defaults.setDefaultImage(request, 'admin'))
     db.add(new_admin)
     db.commit()
     db.refresh(new_admin)
@@ -44,7 +45,7 @@ def adminLoginToAccount(request: admin_schemas.Login, db: Session):
     # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username, "id": user.id, "userType": "admin"})
-    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "user name": user.username, "profile picture": getDefaultImage(user)}}
+    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "user name": user.username, "profile picture": Defaults.getDefaultImage(user, 'admin')}}
 
 # admin update account details
 
@@ -62,7 +63,7 @@ def adminUpdateAccountDetails(id: int, request: admin_schemas.Admin, db: Session
     try:
         db.commit()
         db.refresh(user)
-        user.profile_picture = getDefaultImage(user)
+        user.profile_picture = Defaults.getDefaultImage(user, 'admin')
         return user
     except IntegrityError as e:
         db.rollback()
@@ -131,7 +132,7 @@ def adminUploadProfilePicture(db: Session, current_user, file):
         db.commit()
         db.refresh(admin)
 
-        admin.profile_picture = getDefaultImage(admin)
+        admin.profile_picture = Defaults.getDefaultImage(admin, 'admin')
 
         return admin
     except IntegrityError as e:
@@ -260,37 +261,6 @@ def adminRemoveComments(id: int, db: Session):
     db.commit()
 
     return {'details': f'Comment {id} is Deleted'}
-
-# get default Image
-
-
-def getDefaultImage(user):
-    # default profile picture
-    if user.profile_picture is not None and len(user.profile_picture) != 0:
-        default_image = f"{Environment.getBaseEnv()}assets/profiles/admin/{user.profile_picture}"
-
-        isExist = os.path.exists(
-            f'./assets/profiles/admin/{user.profile_picture}')
-        if not isExist:
-            default_image = f"{Environment.getBaseEnv()}defaults/admin.png"
-
-    else:
-        default_image = f"{Environment.getBaseEnv()}defaults/admin.png"
-
-    return default_image
-
-# set default image
-
-
-def setDefaultImage(request):
-    # default profile picture
-    # adding default image
-    if request.profile_picture is None or len(request.profile_picture) == 0:
-        image = 'admin.png'
-    else:
-        image = request.profile_picture
-
-    return image
 
 
 def getPostImage(post):

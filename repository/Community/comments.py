@@ -1,3 +1,4 @@
+from env import Environment
 import models
 import os
 import shutil
@@ -10,19 +11,15 @@ from schemas.community_schemas import CreateComment, ShowComment
 # add comment to the post
 
 
-def addCommentToPost(id: int, req: Request, request: CreateComment, db: session):
+def addCommentToPost(id: int, new_current_user, request: CreateComment, db: session):
     post = db.query(models.CommunityPost).filter(
         models.CommunityPost.id == id).first()
-
-    if req.headers.get('id') is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Please Send User ID on headers")
 
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invlid post id")
 
-    userId = int(req.headers.get('id'))
+    userId = new_current_user.id
 
     new_comment = models.Comments(
         comment=request.comment, postId=id, userid=userId)
@@ -63,7 +60,7 @@ def getCommentOnId(id: int, req: Request, db: session):
                 setattr(comment[i], "isUser", True)
             else:
                 setattr(comment[i], "isUser", False)
-
+    getDefaultsImages(comment)
     return comment
 
 # remove comment based on comment id
@@ -262,6 +259,8 @@ def addImageToComment(id: int, db: session, file, new_current_user):
         db.commit()
         db.refresh(new_image)
 
+        new_image.image_name = f'{Environment.getBaseEnv()}assets/community_post_comment_images/{new_image.image_name}'
+
         return {"msg": "Add new Image successfully", "details": new_image}
     except IntegrityError as e:
         db.rollback()
@@ -313,3 +312,40 @@ def RemoveImageInComment(id: int, db: session,  new_current_user):
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'There is no image in the server')
+
+
+def getDefaultsImages(comment):
+    if hasattr(comment, '__len__'):
+        for i in range(len(comment)):
+            comment[i].user.profile_picture = ""
+            if comment[i].user.profile_picture is None or len(comment[i].user.profile_picture) == 0:
+                comment[i].user.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+            else:
+                comment[i].user.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{comment[i].user.profile_picture}"
+
+            if len(comment[i].image) > 0:
+                for j in range(len(comment[i].image)):
+                    comment[i].image[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{comment[i].image[j].image_name}'
+
+            else:
+                s = []
+                s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+                comment[i].default_image = s
+
+        return comment
+    else:
+        if comment.user.profile_picture is None or len(comment.user.profile_picture) == 0:
+            comment.user.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+        else:
+            comment.user.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{comment.user.profile_picture}"
+
+        if len(comment.image) > 0:
+            for j in range(len(comment.image)):
+                comment.image[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{comment.image[j].image_name}'
+
+        else:
+            s = []
+            s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+            comment.default_image = s
+
+        return comment

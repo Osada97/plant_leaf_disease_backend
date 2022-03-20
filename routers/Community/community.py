@@ -82,7 +82,7 @@ def addImagePost(id: int,  db: session = Depends(get_db),  new_current_user: use
 
 @router.post('/comment/create/{id}', response_model=ShowComment)
 def createComment(id: int, req: Request, request: CreateComment, db: session = Depends(get_db),  new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return addCommentToPost(id, req, request, db)
+    return addCommentToPost(id, new_current_user, request, db)
 # get new comment
 
 

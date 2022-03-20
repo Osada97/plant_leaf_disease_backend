@@ -30,6 +30,7 @@ class ShowCommunityPost(CommunityPost):
     down_vote_count: int
     owner: GetUser
     images: List[CommunityPostImage] = []
+    default_image: Optional[str] = None
 
     class Config():
         orm_mode = True
@@ -51,6 +52,7 @@ class ShowCommunityPostOnId(CommunityPost):
     down_vote_count: int
     owner: GetUser
     images: List[CommunityPostImage] = []
+    default_image: Optional[str] = None
 
     class Config():
         orm_mode = True
@@ -59,6 +61,9 @@ class ShowCommunityPostOnId(CommunityPost):
 class CommentImage(BaseModel):
     id: int
     image_name: str
+
+    class Config():
+        orm_mode = True
 
 
 class Comment(BaseModel):
@@ -71,6 +76,7 @@ class Comment(BaseModel):
     isDownVoted: Optional[bool] = False
     user: GetUser
     image: List[CommentImage] = []
+    default_image: Optional[str] = None
 
     class Config():
         orm_mode = True
