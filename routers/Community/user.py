@@ -1,10 +1,8 @@
-from typing import Optional
-from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
-from repository.Community.userAuth import changedUserPassword, createNewUserAccount, loginUser, updateProfileDetails
+from repository.Community.userAuth import changedUserPassword, createNewUserAccount, loginUser, updateProfileDetails, uploadProfilePicture
 from schemas import user_schemas
 
 router = APIRouter(
@@ -29,6 +27,11 @@ def loginAccount(request: user_schemas.UserLogin, db: session = Depends(get_db))
 @router.put('/updateprofile/{id}', response_model=user_schemas.ProfileUpdate)
 def updateUserProfile(id: int, request: user_schemas.ProfileUpdate, db: session = Depends(get_db), new_current_user: loginUser = Depends(get_current_plantUser)):
     return updateProfileDetails(id, request, db)
+
+
+@router.post('/uploadprofilepic', response_model=user_schemas.User)
+def updateProfilePic(db: session = Depends(get_db), current_user: loginUser = Depends(get_current_plantUser), file: UploadFile = File(..., media_type='image/jpeg')):
+    return uploadProfilePicture(db, current_user, file)
 
 # changed password
 

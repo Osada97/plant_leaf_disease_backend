@@ -12,6 +12,9 @@ class User(BaseModel):
     password: str = Field(..., min_length=1)
     profile_picture:  Optional[str] = None
 
+    class Config():
+        orm_mode = True
+
 
 class UserLogin(BaseModel):
     username: str = Field(..., min_length=1, max_length=155)
