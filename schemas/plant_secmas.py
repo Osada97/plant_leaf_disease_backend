@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 
 class Plant(BaseModel):
-    id: int
     plant_name: str
     science_name: str
     description: Optional[str] = None

@@ -1,7 +1,6 @@
 import models
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from env import Environment
 
 
 def getPlantAllDetails(id: int, db: Session):
@@ -14,9 +13,9 @@ def getPlantAllDetails(id: int, db: Session):
 
     if len(plantDetails.disease_image) > 0:
         for i in range(len(plantDetails.disease_image)):
-            plantDetails.disease_image[i].image_name = f'{Environment.getBaseEnv()}assets/plant_disease_images/{plantDetails.disease_image[i].image_name}'
+            plantDetails.disease_image[i].image_name = f'assets/plant_disease_images/{plantDetails.disease_image[i].image_name}'
 
     else:
-        plantDetails.default_image = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+        plantDetails.default_image = f'defaults/communityDefault.jpg'
 
     return plantDetails
