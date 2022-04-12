@@ -84,7 +84,7 @@ class User(Base):
     username = Column(String(155), nullable=False, unique=True)
     email = Column(String(155), nullable=False, unique=True)
     phone_number = Column(String(35), nullable=False)
-    location = Column(String(155), nullable=False)
+    location = Column(String(155), nullable=True)
     password = Column(Text, nullable=False)
     profile_picture = Column(Text, default='user.png')
 

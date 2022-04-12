@@ -25,11 +25,11 @@ def createNewUserAccount(request: user_schemas.User, db: session):
 
     if user_exists:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Username is already exits")
+            status_code=status.HTTP_400_BAD_REQUEST, detail={'userName': f"Username is already exits"})
 
     elif email_exists:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Email is already exits")
+            status_code=status.HTTP_400_BAD_REQUEST, detail={'email': f"Email is already exits"})
 
     else:
         new_user = models.User(first_name=request.first_name, last_name=request.last_name, username=request.username, email=request.email,
@@ -56,11 +56,11 @@ def loginUser(request: user_schemas.UserLogin, db: session):
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+            status_code=status.HTTP_404_NOT_FOUND, detail={'userName': f"Invalid Credentials"})
 
     if not Hash.verify(request.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Password")
+            status_code=status.HTTP_404_NOT_FOUND, detail={"password": f"Invalid Password"})
 
     access_token = create_access_token(
         data={"sub": user.username, "id": user.id, "userType": "user"})
