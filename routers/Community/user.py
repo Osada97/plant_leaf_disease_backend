@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
-from repository.Community.userAuth import changedUserPassword, createNewUserAccount, loginUser, updateProfileDetails, uploadProfilePicture
+from repository.Community.userAuth import changedUserPassword, createNewUserAccount, getUserdDetailsUsingToken, loginUser, updateProfileDetails, uploadProfilePicture
 from schemas import user_schemas
 
 router = APIRouter(
@@ -21,6 +21,13 @@ def createUserAccount(request: user_schemas.User, db: session = Depends(get_db))
 @router.post('/login')
 def loginAccount(request: user_schemas.UserLogin, db: session = Depends(get_db)):
     return loginUser(request, db)
+
+# user details using token
+
+
+@router.get('/getdetails')
+def getDetails(db: session = Depends(get_db), current_user: loginUser = Depends(get_current_plantUser)):
+    return getUserdDetailsUsingToken(db, current_user)
 
 
 # update user profile

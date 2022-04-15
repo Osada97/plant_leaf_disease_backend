@@ -66,6 +66,18 @@ def loginUser(request: user_schemas.UserLogin, db: session):
         data={"sub": user.username, "id": user.id, "userType": "user"})
     return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": Defaults.getDefaultImage(user, 'user')}}
 
+
+# get user details using key
+def getUserdDetailsUsingToken(db: session, current_user):
+    user = db.query(models.User).filter(
+        models.User.id == current_user.id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+
+    return {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": Defaults.getDefaultImage(user, 'user')}
+
 # update profile details
 
 
