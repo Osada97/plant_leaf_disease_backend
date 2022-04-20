@@ -28,14 +28,14 @@ class Defaults():
         # default profile picture
         if userType == 'user':
             if user.profile_picture is not None and len(user.profile_picture) != 0:
-                path = f"{Environment.getBaseEnv()}assets/profiles/user/{user.profile_picture}"
+                path = f"assets/profiles/user/{user.profile_picture}"
                 default_image = path
                 isExist = path
                 if not isExist:
-                    default_image = f"{Environment.getBaseEnv()}defaults/user.png"
+                    default_image = f"defaults/user.jpg"
 
             else:
-                default_image = f"{Environment.getBaseEnv()}defaults/user.png"
+                default_image = f"defaults/user.jpg"
 
             return default_image
 

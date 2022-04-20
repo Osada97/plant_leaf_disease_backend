@@ -76,7 +76,7 @@ def getUserdDetailsUsingToken(db: session, current_user):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    return {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": Defaults.getDefaultImage(user, 'user')}
+    return {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user_name": user.username, "email": user.email, "location": user.location, "profile_picture": Defaults.getDefaultImage(user, 'user')}
 
 # update profile details
 
