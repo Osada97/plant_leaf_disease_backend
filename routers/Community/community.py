@@ -21,9 +21,9 @@ def getCommunityPost(req: Request, db: session = Depends(get_db)):
 
 
 # user belong posts
-@router.get('/getuserposts/{id}', response_model=List[ShowCommunityPostOnId])
-def getUsersPost(id: int, db: session = Depends(get_db)):
-    return getCommunityPostById(id, db)
+@router.get('/getuserposts/{id}', response_model=List[PostBool])
+def getUsersPost(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return getCommunityPostById(id, db, new_current_user)
 
 
 # create new post

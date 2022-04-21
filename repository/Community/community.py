@@ -53,9 +53,28 @@ def getCommunityPosts(req: Request, db: session):
 # get community post based on user id
 
 
-def getCommunityPostById(id: int, db: session):
+def getCommunityPostById(id: int, db: session, new_current_user):
     posts = db.query(models.CommunityPost).filter(
         (models.CommunityPost.userId == id) and (models.CommunityPost.is_approve == True)).all()
+
+    if new_current_user.id:
+        id = new_current_user.id
+        for i in range(len(posts)):
+            postId = int(posts[i].id)
+            vote = db.query(models.VotePost).filter(
+                (models.VotePost.postId == postId) & (models.VotePost.userId == id)).first()
+            if vote is not None:
+                if vote.is_up_vote == True:
+                    setattr(posts[i], "isUpVoted", True)
+                    setattr(posts[i], "isDownVoted", False)
+                elif vote.is_down_vote == True:
+                    setattr(posts[i], "isUpVoted", False)
+                    setattr(posts[i], "isDownVoted", True)
+
+            if posts[i].userId == int(id):
+                setattr(posts[i], "isUser", True)
+            else:
+                setattr(posts[i], "isUser", False)
 
     return getDefaultsImages(posts)
 
@@ -370,34 +389,36 @@ def removeImageFromPost(id: int, new_current_user,  db: session):
 def getDefaultsImages(posts):
     if hasattr(posts, '__len__'):
         for i in range(len(posts)):
-            if posts[i].owner.profile_picture is None or len(posts[i].owner.profile_picture) == 0:
-                posts[i].owner.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+            if len(posts[i].owner.profile_picture) == 0:
+                posts[i].owner.profile_picture = f"defaults/user.png"
             else:
-                posts[i].owner.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{posts[i].owner.profile_picture}"
+                posts[i].owner.profile_picture = f"profiles/user/{posts[i].owner.profile_picture}"
 
             if len(posts[i].images) > 0:
                 for j in range(len(posts[i].images)):
-                    posts[i].images[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{posts[i].images[j].image_name}'
+                    posts[i].images[
+                        j].image_name = f'assets/community_post_images/{posts[i].images[j].image_name}'
 
             else:
                 s = []
-                s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+                s = f'defaults/communityDefault.jpg'
                 posts[i].default_image = s
 
-        return posts
+            return posts
+
     else:
         if posts.owner.profile_picture is None or len(posts.owner.profile_picture) == 0:
-            posts.owner.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+            posts.owner.profile_picture = f"defaults/user.png"
         else:
-            posts.owner.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{posts.owner.profile_picture}"
+            posts.owner.profile_picture = f"profiles/user/{posts.owner.profile_picture}"
 
         if len(posts.images) > 0:
             for j in range(len(posts.images)):
-                posts.images[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{posts.images[j].image_name}'
+                posts.images[j].image_name = f'assets/community_post_images/{posts.images[j].image_name}'
 
         else:
             s = []
-            s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+            s = f'defaults/communityDefault.jpg'
             posts.default_image = s
 
         return posts

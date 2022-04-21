@@ -46,6 +46,7 @@ class PostBool(ShowCommunityPost):
 
 
 class ShowCommunityPostOnId(CommunityPost):
+    id: int
     post_date: datetime
     up_vote_count: int
     is_approve: bool
