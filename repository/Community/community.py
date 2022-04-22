@@ -55,7 +55,7 @@ def getCommunityPosts(req: Request, db: session):
 
 def getCommunityPostById(id: int, db: session, new_current_user):
     posts = db.query(models.CommunityPost).filter(
-        (models.CommunityPost.userId == id) and (models.CommunityPost.is_approve == True)).all()
+        models.CommunityPost.userId == id).order_by(models.CommunityPost.id).all()
 
     if new_current_user.id:
         id = new_current_user.id
@@ -388,11 +388,15 @@ def removeImageFromPost(id: int, new_current_user,  db: session):
 
 def getDefaultsImages(posts):
     if hasattr(posts, '__len__'):
+        pevId = ''
         for i in range(len(posts)):
-            if len(posts[i].owner.profile_picture) == 0:
-                posts[i].owner.profile_picture = f"defaults/user.jpg"
+            if len(posts[i].owner.profile_picture) == 0 and pevId != posts[i].owner.id:
+                profile_pic = f"defaults/user.jpg"
+                pevId = posts[i].owner.id
             else:
-                posts[i].owner.profile_picture = f"profiles/user/{posts[i].owner.profile_picture}"
+                if pevId != posts[i].owner.id:
+                    profile_pic = f"profiles/user/{posts[i].owner.profile_picture}"
+                    pevId = posts[i].owner.id
 
             if len(posts[i].images) > 0:
                 for j in range(len(posts[i].images)):
@@ -404,7 +408,10 @@ def getDefaultsImages(posts):
                 s = f'defaults/communityDefault.jpg'
                 posts[i].default_image = s
 
-            return posts
+            posts[i].owner.profile_picture = profile_pic
+            # print(profile_pic)
+
+        # return posts
 
     else:
         if posts.owner.profile_picture is None or len(posts.owner.profile_picture) == 0:
@@ -421,4 +428,4 @@ def getDefaultsImages(posts):
             s = f'defaults/communityDefault.jpg'
             posts.default_image = s
 
-        return posts
+    return posts
