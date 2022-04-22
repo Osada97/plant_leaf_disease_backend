@@ -390,7 +390,7 @@ def getDefaultsImages(posts):
     if hasattr(posts, '__len__'):
         for i in range(len(posts)):
             if len(posts[i].owner.profile_picture) == 0:
-                posts[i].owner.profile_picture = f"defaults/user.png"
+                posts[i].owner.profile_picture = f"defaults/user.jpg"
             else:
                 posts[i].owner.profile_picture = f"profiles/user/{posts[i].owner.profile_picture}"
 
