@@ -1,3 +1,4 @@
+from operator import and_
 from env import Environment
 import models
 import os
@@ -264,6 +265,30 @@ def addDownVoteForPost(id: int, new_current_user, db: session):
     elif votes.is_down_vote == True:
         return {"details": f'Down vote already added for post {votes.postId}'}
 
+# removed added vote
+
+
+def removedAddedVote(id: int, new_current_user, db: session):
+    post = db.query(models.VotePost).filter(and_(
+        models.VotePost.postId == id, models.VotePost.userId == new_current_user.id)).first()
+
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no vote")
+
+    if post.is_up_vote:
+        db.query(models.VotePost).filter(
+            and_(
+                models.VotePost.postId == id, models.VotePost.userId == new_current_user.id)).delete(synchronize_session=False)
+        db.commit()
+
+        if CountVote(db, id):
+            return {"details": f'Remove vote form post'}
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no up vote")
+
 
 def CountDownVote(db: session, id):
     up_count = db.query(models.VotePost).filter(
@@ -286,6 +311,30 @@ def CountDownVote(db: session, id):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Somthing Went Wrong')
+
+# removed added vote
+
+
+def removedDownVote(id: int, new_current_user, db: session):
+    post = db.query(models.VotePost).filter(and_(
+        models.VotePost.postId == id, models.VotePost.userId == new_current_user.id)).first()
+
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no vote")
+
+    if post.is_down_vote:
+        db.query(models.VotePost).filter(
+            and_(
+                models.VotePost.postId == id, models.VotePost.userId == new_current_user.id)).delete(synchronize_session=False)
+        db.commit()
+
+        if CountVote(db, id):
+            return {"details": f'Remove vote form post'}
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"There is no down vote")
 
 # add image to post
 

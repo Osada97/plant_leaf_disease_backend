@@ -4,7 +4,7 @@ from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
 from repository.Community.comments import RemoveImageInComment, addCommentToPost, addDownVoteForComment, addImageToComment, addVoteForComment, getCommentOnId, removeCommentId, updateCommentId
-from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, updateCommunityPost
+from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, removedAddedVote, removedDownVote, updateCommunityPost
 from repository.Community import userAuth
 from schemas.community_schemas import CommunityPost, PostBool, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
 
@@ -63,6 +63,21 @@ def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.
 @router.post('/adddownvote/{id}')
 def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return addDownVoteForPost(id, new_current_user, db)
+
+# remove added up vote
+
+
+@router.post('/removeaddedvote/{id}')
+def removeadVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removedAddedVote(id, new_current_user, db)
+
+# remove added down vote
+
+
+@router.post('/removedownvote/{id}')
+def removeadVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removedDownVote(id, new_current_user, db)
+
 
 # add image to post
 
