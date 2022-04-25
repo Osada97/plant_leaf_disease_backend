@@ -25,6 +25,8 @@ def getCommunityPost(req: Request, db: session = Depends(get_db)):
 def getUsersPost(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return getCommunityPostById(id, db, new_current_user)
 
+# get specific post and comment
+
 
 @router.get('/getonepost/{id}', response_model=BoolSec)
 def getSpesificPost(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):

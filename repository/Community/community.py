@@ -123,7 +123,7 @@ def getSpecificPostByPostId(id: int, db: session, new_current_user):
             else:
                 setattr(comment[i], "isUser", False)
 
-    # getDefaultsImagesComment(post.comment)
+    getDefaultsImagesComment(post.comment)
     return getDefaultsImages(post)
 
 # update community posts

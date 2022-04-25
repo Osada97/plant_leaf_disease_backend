@@ -327,8 +327,9 @@ def getDefaultsImagesComment(comment):
                 comment[i].user.profile_picture = f"defaults/user.jpg"
                 pevId = comment[i].user.id
             else:
-                comment[i].user.profile_picture = f"profiles/user/{comment[i].user.profile_picture}"
-                pevId = comment[i].user.id
+                if pevId != comment[i].user.id:
+                    comment[i].user.profile_picture = f"profiles/user/{comment[i].user.profile_picture}"
+                    pevId = comment[i].user.id
 
             if len(comment[i].image) > 0:
                 for j in range(len(comment[i].image)):
