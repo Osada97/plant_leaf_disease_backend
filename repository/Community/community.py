@@ -1,5 +1,4 @@
 from operator import and_
-from env import Environment
 import models
 import os
 import shutil
@@ -7,6 +6,7 @@ import time
 from fastapi import Request, HTTPException, status
 from sqlalchemy.orm import session
 from sqlalchemy.exc import IntegrityError
+from repository.Community.comments import getDefaultsImagesComment
 from schemas.community_schemas import CommunityPost
 
 # create community posts
@@ -78,6 +78,53 @@ def getCommunityPostById(id: int, db: session, new_current_user):
                 setattr(posts[i], "isUser", False)
 
     return getDefaultsImages(posts)
+
+# get post using post and comments id
+
+
+def getSpecificPostByPostId(id: int, db: session, new_current_user):
+    post = db.query(models.CommunityPost).filter(
+        models.CommunityPost.id == id).order_by(models.CommunityPost.id).first()
+
+    if new_current_user.id:
+        id = new_current_user.id
+        postId = int(post.id)
+        vote = db.query(models.VotePost).filter(
+            (models.VotePost.postId == postId) & (models.VotePost.userId == id)).first()
+        if vote is not None:
+            if vote.is_up_vote == True:
+                setattr(post, "isUpVoted", True)
+                setattr(post, "isDownVoted", False)
+            elif vote.is_down_vote == True:
+                setattr(post, "isUpVoted", False)
+                setattr(post, "isDownVoted", True)
+
+        if post.userId == int(id):
+            setattr(post, "isUser", True)
+        else:
+            setattr(post, "isUser", False)
+
+        for i in range(len(post.comment)):
+            comment = post.comment
+            commentId = int(comment[i].id)
+            vote = db.query(models.VoteComment).filter(
+                (models.VoteComment.commentId == commentId) & (models.VoteComment.userId == id)).first()
+
+            if vote is not None:
+                if vote.is_up_vote == True:
+                    setattr(comment[i], "isUpVoted", True)
+                    setattr(comment[i], "isDownVoted", False)
+                elif vote.is_down_vote == True:
+                    setattr(comment[i], "isUpVoted", False)
+                    setattr(comment[i], "isDownVoted", True)
+
+            if comment[i].userid == int(id):
+                setattr(comment[i], "isUser", True)
+            else:
+                setattr(comment[i], "isUser", False)
+
+    # getDefaultsImagesComment(post.comment)
+    return getDefaultsImages(post)
 
 # update community posts
 
@@ -458,15 +505,15 @@ def getDefaultsImages(posts):
                 posts[i].default_image = s
 
             posts[i].owner.profile_picture = profile_pic
-            # print(profile_pic)
-
-        # return posts
 
     else:
-        if posts.owner.profile_picture is None or len(posts.owner.profile_picture) == 0:
-            posts.owner.profile_picture = f"defaults/user.png"
+        pevId = ''
+        if len(posts.owner.profile_picture) == 0 and pevId != posts.owner.id:
+            posts.owner.profile_picture = f"defaults/user.jpg"
+            pevId = posts.owner.id
         else:
             posts.owner.profile_picture = f"profiles/user/{posts.owner.profile_picture}"
+            pevId = posts.owner.id
 
         if len(posts.images) > 0:
             for j in range(len(posts.images)):

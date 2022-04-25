@@ -45,20 +45,6 @@ class PostBool(ShowCommunityPost):
         orm_mode = True
 
 
-class ShowCommunityPostOnId(CommunityPost):
-    id: int
-    post_date: datetime
-    up_vote_count: int
-    is_approve: bool
-    down_vote_count: int
-    owner: GetUser
-    images: List[CommunityPostImage] = []
-    default_image: Optional[str] = None
-
-    class Config():
-        orm_mode = True
-
-
 class CommentImage(BaseModel):
     id: int
     image_name: str
@@ -98,6 +84,30 @@ class ShowComment(CreateComment):
 class PostImages(BaseModel):
     id: int
     image_name: str
+
+    class Config():
+        orm_mode = True
+
+
+class ShowCommunityPostOnId(CommunityPost):
+    id: int
+    post_date: datetime
+    up_vote_count: int
+    is_approve: bool
+    down_vote_count: int
+    owner: GetUser
+    images: List[CommunityPostImage] = []
+    default_image: Optional[str] = None
+    comment: List[Comment]
+
+    class Config():
+        orm_mode = True
+
+
+class BoolSec(ShowCommunityPostOnId):
+    isUser: Optional[bool] = False
+    isUpVoted: Optional[bool] = False
+    isDownVoted: Optional[bool] = False
 
     class Config():
         orm_mode = True

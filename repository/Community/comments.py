@@ -60,7 +60,7 @@ def getCommentOnId(id: int, req: Request, db: session):
                 setattr(comment[i], "isUser", True)
             else:
                 setattr(comment[i], "isUser", False)
-    getDefaultsImages(comment)
+    getDefaultsImagesComment(comment)
     return comment
 
 # remove comment based on comment id
@@ -318,38 +318,45 @@ def RemoveImageInComment(id: int, db: session,  new_current_user):
                             detail=f'There is no image in the server')
 
 
-def getDefaultsImages(comment):
+def getDefaultsImagesComment(comment):
     if hasattr(comment, '__len__'):
+        pevId = ''
         for i in range(len(comment)):
             comment[i].user.profile_picture = ""
-            if comment[i].user.profile_picture is None or len(comment[i].user.profile_picture) == 0:
-                comment[i].user.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+            if len(comment[i].user.profile_picture) == 0 and pevId != comment[i].user.id:
+                comment[i].user.profile_picture = f"defaults/user.jpg"
+                pevId = comment[i].user.id
             else:
-                comment[i].user.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{comment[i].user.profile_picture}"
+                comment[i].user.profile_picture = f"profiles/user/{comment[i].user.profile_picture}"
+                pevId = comment[i].user.id
 
             if len(comment[i].image) > 0:
                 for j in range(len(comment[i].image)):
-                    comment[i].image[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{comment[i].image[j].image_name}'
+                    comment[i].image[
+                        j].image_name = f'assets/community_post_images/{comment[i].image[j].image_name}'
 
             else:
                 s = []
-                s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+                s = f'defaults/communityDefault.jpg'
                 comment[i].default_image = s
 
         return comment
     else:
-        if comment.user.profile_picture is None or len(comment.user.profile_picture) == 0:
-            comment.user.profile_picture = f"{Environment.getBaseEnv()}defaults/user.png"
+        pevId = ''
+        if len(comment.user.profile_picture) == 0 and pevId != comment.user.id:
+            comment.user.profile_picture = f"defaults/user.jpg"
+            pevId = comment.user.id
         else:
-            comment.user.profile_picture = f"{Environment.getBaseEnv()}profiles/user/{comment.user.profile_picture}"
+            comment.user.profile_picture = f"profiles/user/{comment.user.profile_picture}"
+            pevId = comment.user.id
 
         if len(comment.image) > 0:
             for j in range(len(comment.image)):
-                comment.image[j].image_name = f'{Environment.getBaseEnv()}assets/community_post_images/{comment.image[j].image_name}'
+                comment.image[j].image_name = f'assets/community_post_images/{comment.image[j].image_name}'
 
         else:
             s = []
-            s = f'{Environment.getBaseEnv()}defaults/communityDefault.jpg'
+            s = f'defaults/communityDefault.jpg'
             comment.default_image = s
 
         return comment

@@ -4,9 +4,9 @@ from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
 from repository.Community.comments import RemoveImageInComment, addCommentToPost, addDownVoteForComment, addImageToComment, addVoteForComment, getCommentOnId, removeCommentId, updateCommentId
-from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, removedAddedVote, removedDownVote, updateCommunityPost
+from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, getSpecificPostByPostId, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, removedAddedVote, removedDownVote, updateCommunityPost
 from repository.Community import userAuth
-from schemas.community_schemas import CommunityPost, PostBool, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
+from schemas.community_schemas import BoolSec, CommunityPost, PostBool, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
 
 router = APIRouter(
     prefix='/community',
@@ -26,7 +26,13 @@ def getUsersPost(id: int, db: session = Depends(get_db), new_current_user: userA
     return getCommunityPostById(id, db, new_current_user)
 
 
+@router.get('/getonepost/{id}', response_model=BoolSec)
+def getSpesificPost(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return getSpecificPostByPostId(id, db, new_current_user)
+
 # create new post
+
+
 @router.post('/create/{id}', response_model=ShowCommunityPost)
 def createCommunityPost(id: int, request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return createNewCommunityPost(id, request, db)
