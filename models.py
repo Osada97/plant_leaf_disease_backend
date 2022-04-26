@@ -114,7 +114,7 @@ class CommunityPost(Base):
                           back_populates='relate_image_post')
     vote = relationship("VotePost",
                         back_populates='votePost')
-    comment = relationship("Comments",
+    comment = relationship("Comments", order_by='Comments.id',
                            back_populates='relate_post')
 
 

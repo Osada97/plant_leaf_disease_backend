@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request, File, UploadFile
 from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
-from repository.Community.comments import RemoveImageInComment, addCommentToPost, addDownVoteForComment, addImageToComment, addVoteForComment, getCommentOnId, removeCommentId, updateCommentId
+from repository.Community.comments import RemoveImageInComment, addCommentToPost, addDownVoteForComment, addImageToComment, addVoteForComment, getCommentOnId, removeCommentId, removeDownVoteFromComment, removeUpVoteFromComment, updateCommentId
 from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, getSpecificPostByPostId, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, removedAddedVote, removedDownVote, updateCommunityPost
 from repository.Community import userAuth
 from schemas.community_schemas import BoolSec, CommunityPost, PostBool, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
@@ -134,11 +134,25 @@ def removeComment(id: int, db: session = Depends(get_db), new_current_user: user
 def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return addVoteForComment(id, new_current_user, db)
 
+# removed added vote
+
+
+@router.delete('/comment/removeupvote/{id}')
+def removeaddVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeUpVoteFromComment(id, new_current_user, db)
+
 
 # add down vote for commenet
 @router.post('/comment/downvote/{id}')
 def addVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return addDownVoteForComment(id, new_current_user, db)
+
+# removed added down vote
+
+
+@router.delete('/comment/removedownvote/{id}')
+def removeDownVote(id: int,  db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return removeDownVoteFromComment(id, new_current_user, db)
 
 # add image to comment
 

@@ -1,3 +1,4 @@
+from operator import and_
 from env import Environment
 import models
 import os
@@ -35,7 +36,7 @@ def addCommentToPost(id: int, new_current_user, request: CreateComment, db: sess
 
 def getCommentOnId(id: int, req: Request, db: session):
     comment = db.query(models.Comments).filter(
-        models.Comments.postId == id).all()
+        models.Comments.postId == id).order_by(models.Comments.id).all()
 
     if comment is None:
         raise HTTPException(
@@ -132,7 +133,7 @@ def addVoteForComment(id: int, new_current_user, db: session):
         db.commit()
         db.refresh(add_vote)
 
-        if countUpVote(id, db, comment):
+        if countUpVote(id, db):
             return {"details": f'added up vote for comment {add_vote.id}'}
 
     elif vote.is_down_vote == True:
@@ -143,22 +144,54 @@ def addVoteForComment(id: int, new_current_user, db: session):
         db.commit()
         db.refresh(vote)
 
-        if countUpVote(id, db, comment):
+        if countUpVote(id, db):
             return {"details": f'added up vote for comment {comment.id}'}
 
     elif vote.is_up_vote == True:
         return {"details": f'up vote already added for comment {comment.id}'}
 
+
+def removeUpVoteFromComment(id: int, new_current_user, db: session):
+    comment = db.query(models.VoteComment).filter(and_(
+        models.VoteComment.commentId == id, models.VoteComment.userId == new_current_user.id)).first()
+
+    if comment.is_up_vote:
+        db.query(models.VoteComment).filter(and_(models.VoteComment.commentId == id,
+                                                 models.VoteComment.userId == new_current_user.id)).delete(synchronize_session=False)
+        db.commit()
+
+        if countUpVote(id, db):
+            return {"details": f'delete up vote form comment'}
+
+    else:
+        return {"details": f'There is no up vote for this comment id {id}'}
+
+
+def removeDownVoteFromComment(id: int, new_current_user, db: session):
+    comment = db.query(models.VoteComment).filter(and_(
+        models.VoteComment.commentId == id, models.VoteComment.userId == new_current_user.id)).first()
+
+    if comment.is_down_vote:
+        db.query(models.VoteComment).filter(and_(models.VoteComment.commentId == id,
+                                                 models.VoteComment.userId == new_current_user.id)).delete(synchronize_session=False)
+        db.commit()
+
+        if countUpVote(id, db):
+            return {"details": f'delete down vote form comment'}
+    else:
+        return {"details": f'There is no down vote for this comment {id}'}
+
 # calculate up vote and down vote count and update table
 
 
-def countUpVote(commentId, db, comment):
+def countUpVote(commentId, db):
     up_count = db.query(models.VoteComment).filter(
         (models.VoteComment.commentId == commentId) & (models.VoteComment.is_up_vote == True)).count()
     down_count = db.query(models.VoteComment).filter(
         (models.VoteComment.commentId == commentId) & (models.VoteComment.is_down_vote == True)).count()
 
-    print(up_count, down_count)
+    comment = db.query(models.Comments).filter(
+        models.Comments.id == commentId).first()
 
     comment.up_vote_count = int(up_count)
     comment.down_vote_count = int(down_count)
@@ -197,7 +230,7 @@ def addDownVoteForComment(id: int, new_current_user, db: session):
         db.commit()
         db.refresh(add_vote)
 
-        if countUpVote(id, db, comment):
+        if countUpVote(id, db):
             return {"details": f'added down vote for comment {add_vote.id}'}
 
     elif vote.is_up_vote == True:
@@ -208,7 +241,7 @@ def addDownVoteForComment(id: int, new_current_user, db: session):
         db.commit()
         db.refresh(vote)
 
-        if countUpVote(id, db, comment):
+        if countUpVote(id, db):
             return {"details": f'added down vote for comment {vote.id}'}
 
     elif vote.is_down_vote == True:

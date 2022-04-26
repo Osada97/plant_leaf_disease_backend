@@ -1,4 +1,6 @@
 from operator import and_
+
+from sqlalchemy import desc
 import models
 import os
 import shutil
@@ -56,7 +58,7 @@ def getCommunityPosts(req: Request, db: session):
 
 def getCommunityPostById(id: int, db: session, new_current_user):
     posts = db.query(models.CommunityPost).filter(
-        models.CommunityPost.userId == id).order_by(models.CommunityPost.id).all()
+        models.CommunityPost.userId == id).order_by(desc(models.CommunityPost.id)).all()
 
     if new_current_user.id:
         id = new_current_user.id
@@ -89,8 +91,8 @@ def getSpecificPostByPostId(id: int, db: session, new_current_user):
     if new_current_user.id:
         id = new_current_user.id
         postId = int(post.id)
-        vote = db.query(models.VotePost).filter(
-            (models.VotePost.postId == postId) & (models.VotePost.userId == id)).first()
+        vote = db.query(models.VotePost).filter(and_(models.VotePost.postId == postId, models.VotePost.userId == id)
+                                                ).order_by(models.VotePost.id).first()
         if vote is not None:
             if vote.is_up_vote == True:
                 setattr(post, "isUpVoted", True)
@@ -107,8 +109,8 @@ def getSpecificPostByPostId(id: int, db: session, new_current_user):
         for i in range(len(post.comment)):
             comment = post.comment
             commentId = int(comment[i].id)
-            vote = db.query(models.VoteComment).filter(
-                (models.VoteComment.commentId == commentId) & (models.VoteComment.userId == id)).first()
+            vote = db.query(models.VoteComment).filter(and_(models.VoteComment.commentId == commentId, models.VoteComment.userId == id)
+                                                       ).order_by(models.VoteComment.id).first()
 
             if vote is not None:
                 if vote.is_up_vote == True:

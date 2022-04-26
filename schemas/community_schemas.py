@@ -54,6 +54,7 @@ class CommentImage(BaseModel):
 
 
 class Comment(BaseModel):
+    id: int
     comment: str
     comment_date: datetime
     down_vote_count: int
