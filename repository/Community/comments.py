@@ -264,43 +264,42 @@ def addImageToComment(id: int, db: session, file, new_current_user):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"This User Not Belong Comment {id}")
 
-    for i in range(0, 2):
-        # adding image
-        # check file type
-        if file[i].content_type not in ["image/jpeg", "image/png"]:
-            raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                                detail=f'{file[i].content_type} is invalid file type please upload jpeg and png files.')
+    # adding image
+    # check file type
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                            detail=f'{file.content_type} is invalid file type please upload jpeg and png files.')
 
-        path = './assets/community_post_comment_images'
-        # check specific file directory exits
-        isExist = os.path.exists(path)
+    path = './assets/community_post_comment_images'
+    # check specific file directory exits
+    isExist = os.path.exists(path)
 
-        if not isExist:
-            # create new directory
-            os.makedirs(path)
+    if not isExist:
+        # create new directory
+        os.makedirs(path)
 
-        timestr = time.strftime("%Y%m%d-%H%M%S")
-        filenames = timestr+file[i].filename.replace(" ", "")
-        file_location = f'{path}/{filenames}'
-        with open(file_location, 'wb') as buffer:
-            shutil.copyfileobj(file[i].file, buffer)
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filenames = timestr+file.filename.replace(" ", "")
+    file_location = f'{path}/{filenames}'
+    with open(file_location, 'wb') as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-        new_image = models.CommunityCommentImage(
-            image_name=filenames, commentsId=id)
+    new_image = models.CommunityCommentImage(
+        image_name=filenames, commentsId=id)
 
-        try:
-            db.add(new_image)
-            db.commit()
-            db.refresh(new_image)
+    try:
+        db.add(new_image)
+        db.commit()
+        db.refresh(new_image)
 
-            new_image.image_name = f'{Environment.getBaseEnv()}assets/community_post_comment_images/{new_image.image_name}'
+        new_image.image_name = f'{Environment.getBaseEnv()}assets/community_post_comment_images/{new_image.image_name}'
 
-            reve = {"msg": "Add new Image successfully",
-                    "details": f'{id} image uploaded'}
-        except IntegrityError as e:
-            db.rollback()
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail=f'id {id} is not in the disease table please check the id and try again')
+        reve = {"msg": "Add new Image successfully",
+                "details": f'{id} image uploaded'}
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'id {id} is not in the disease table please check the id and try again')
 
     return reve
 
@@ -355,7 +354,6 @@ def getDefaultsImagesComment(comment):
     if hasattr(comment, '__len__'):
         pevId = ''
         for i in range(len(comment)):
-            comment[i].user.profile_picture = ""
             if len(comment[i].user.profile_picture) == 0 and pevId != comment[i].user.id:
                 comment[i].user.profile_picture = f"defaults/user.jpg"
                 pevId = comment[i].user.id
@@ -367,7 +365,7 @@ def getDefaultsImagesComment(comment):
             if len(comment[i].image) > 0:
                 for j in range(len(comment[i].image)):
                     comment[i].image[
-                        j].image_name = f'assets/community_post_images/{comment[i].image[j].image_name}'
+                        j].image_name = f'assets/community_post_comment_images/{comment[i].image[j].image_name}'
 
             else:
                 s = []

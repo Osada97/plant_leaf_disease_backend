@@ -158,7 +158,7 @@ def removeDownVote(id: int,  db: session = Depends(get_db), new_current_user: us
 
 
 @router.post('/comment/addimage/{id}')
-def addImage(id: int, db: session = Depends(get_db), file: List[UploadFile] = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+def addImage(id: int, db: session = Depends(get_db), file: UploadFile = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return addImageToComment(id, db, file, new_current_user)
 
 # remove image to comment

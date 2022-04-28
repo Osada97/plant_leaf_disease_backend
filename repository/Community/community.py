@@ -1,4 +1,5 @@
 from operator import and_
+from requests import post
 
 from sqlalchemy import desc
 import models
@@ -126,7 +127,7 @@ def getSpecificPostByPostId(id: int, db: session, new_current_user):
                 setattr(comment[i], "isUser", False)
 
     getDefaultsImagesComment(post.comment)
-    return getDefaultsImages(post)
+    return getDefaultsImagesInSpecific(post)
 
 # update community posts
 
@@ -508,8 +509,12 @@ def getDefaultsImages(posts):
 
             posts[i].owner.profile_picture = profile_pic
 
+        return posts
+
     else:
         pevId = ''
+        print(len(posts.owner.profile_picture))
+        print(pevId)
         if len(posts.owner.profile_picture) == 0 and pevId != posts.owner.id:
             posts.owner.profile_picture = f"defaults/user.jpg"
             pevId = posts.owner.id
@@ -526,4 +531,53 @@ def getDefaultsImages(posts):
             s = f'defaults/communityDefault.jpg'
             posts.default_image = s
 
-    return posts
+        return posts
+
+
+def getDefaultsImagesInSpecific(posts):
+    if hasattr(posts, '__len__'):
+        pevId = ''
+        for i in range(len(posts)):
+            if len(posts[i].comment) == 0:
+                if len(posts[i].owner.profile_picture) == 0 and pevId != posts[i].owner.id:
+                    profile_pic = f"defaults/user.jpg"
+                    pevId = posts[i].owner.id
+                else:
+                    if pevId != posts[i].owner.id:
+                        profile_pic = f"profiles/user/{posts[i].owner.profile_picture}"
+                        pevId = posts[i].owner.id
+
+            if len(posts[i].images) > 0:
+                for j in range(len(posts[i].images)):
+                    posts[i].images[
+                        j].image_name = f'assets/community_post_images/{posts[i].images[j].image_name}'
+
+            else:
+                s = []
+                s = f'defaults/communityDefault.jpg'
+                posts[i].default_image = s
+
+            posts[i].owner.profile_picture = profile_pic
+
+        return posts
+
+    else:
+        pevId = ''
+        if len(posts.comment) == 0:
+            if len(posts.owner.profile_picture) == 0 and pevId != posts.owner.id:
+                posts.owner.profile_picture = f"defaults/user.jpg"
+                pevId = posts.owner.id
+            else:
+                posts.owner.profile_picture = f"profiles/user/{posts.owner.profile_picture}"
+                pevId = posts.owner.id
+
+        if len(posts.images) > 0:
+            for j in range(len(posts.images)):
+                posts.images[j].image_name = f'assets/community_post_images/{posts.images[j].image_name}'
+
+        else:
+            s = []
+            s = f'defaults/communityDefault.jpg'
+            posts.default_image = s
+
+        return posts

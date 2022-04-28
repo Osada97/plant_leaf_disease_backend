@@ -71,7 +71,7 @@ class Comment(BaseModel):
 
 
 class CreateComment(BaseModel):
-    comment: str = Field(..., min_length=1)
+    comment: str = Field(..., max_length=500)
 
 
 class ShowComment(CreateComment):
