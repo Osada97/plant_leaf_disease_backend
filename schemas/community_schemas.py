@@ -8,7 +8,7 @@ from schemas.user_schemas import GetUser
 
 class CommunityPost(BaseModel):
     post_title: str = Field(..., min_length=1, max_length=155)
-    description: str = Field(..., min_length=1, max_length=155)
+    description: str = Field(..., min_length=1, max_length=500)
 
     class Config():
         orm_mode = True

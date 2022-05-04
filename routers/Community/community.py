@@ -91,7 +91,7 @@ def removeadVote(id: int,  db: session = Depends(get_db), new_current_user: user
 
 
 @router.post('/addimagetopost/{id}')
-def addImagePost(id: int,  db: session = Depends(get_db), file: List[UploadFile] = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+def addImagePost(id: int,  db: session = Depends(get_db), file: UploadFile = File(..., media_type='image/jpeg'), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return addImageToCommunityPost(id, new_current_user, db, file)
 # remove image from post
 
