@@ -15,9 +15,9 @@ from schemas.community_schemas import CommunityPost
 # create community posts
 
 
-def createNewCommunityPost(id, request: CommunityPost, db: session):
+def createNewCommunityPost(request: CommunityPost, db: session, new_current_user):
     new_post = models.CommunityPost(
-        post_title=request.post_title, description=request.description, userId=id)
+        post_title=request.post_title, description=request.description, userId=new_current_user.id)
 
     db.add(new_post)
     db.commit()

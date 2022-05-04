@@ -153,8 +153,9 @@ def uploadProfilePicture(db: session, current_user, file):
 # changed password
 
 
-def changedUserPassword(id: int, request: user_schemas.UpdatePassword,  db: session):
-    user = db.query(models.User).filter(models.User.id == id).first()
+def changedUserPassword(request: user_schemas.UpdatePassword,  db: session, new_current_user):
+    user = db.query(models.User).filter(
+        models.User.id == new_current_user.id).first()
 
     if not user:
         raise HTTPException(

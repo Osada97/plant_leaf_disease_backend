@@ -35,9 +35,9 @@ def getSpesificPost(id: int, db: session = Depends(get_db), new_current_user: us
 # create new post
 
 
-@router.post('/create/{id}', response_model=ShowCommunityPost)
-def createCommunityPost(id: int, request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
-    return createNewCommunityPost(id, request, db)
+@router.post('/create', response_model=ShowCommunityPost)
+def createCommunityPost(request: CommunityPost, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
+    return createNewCommunityPost(request, db, new_current_user)
 
 # update post
 

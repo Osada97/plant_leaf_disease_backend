@@ -43,8 +43,8 @@ def updateProfilePic(db: session = Depends(get_db), current_user: loginUser = De
 # changed password
 
 
-@router.put('/updatepassword/{id}')
-def changedPassword(id: int, request: user_schemas.UpdatePassword, db: session = Depends(get_db), new_current_user: loginUser = Depends(get_current_plantUser)):
-    return changedUserPassword(id, request, db)
+@router.put('/updatepassword')
+def changedPassword(request: user_schemas.UpdatePassword, db: session = Depends(get_db), new_current_user: loginUser = Depends(get_current_plantUser)):
+    return changedUserPassword(request, db, new_current_user)
 
 # update profile picture
