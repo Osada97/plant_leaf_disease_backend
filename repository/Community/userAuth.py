@@ -64,7 +64,7 @@ def loginUser(request: user_schemas.UserLogin, db: session):
 
     access_token = create_access_token(
         data={"sub": user.username, "id": user.id, "userType": "user"})
-    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "profile picture": Defaults.getDefaultImage(user, 'user')}}
+    return {"access_token": access_token, "token_type": "bearer", "details": {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user name": user.username, "location": user.location, "phone_number": user.phone_number, "profile picture": Defaults.getDefaultImage(user, 'user')}}
 
 
 # get user details using key
@@ -76,7 +76,7 @@ def getUserdDetailsUsingToken(db: session, current_user):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    return {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user_name": user.username, "email": user.email, "location": user.location, "profile_picture": Defaults.getDefaultImage(user, 'user')}
+    return {"id": user.id, "first_name": user.first_name, "last_name": user.last_name, "user_name": user.username, "email": user.email, "location": user.location, "phone_number": user.phone_number, "profile_picture": Defaults.getDefaultImage(user, 'user')}
 
 # update profile details
 
@@ -94,7 +94,7 @@ def updateProfileDetails(id: int, request: user_schemas.ProfileUpdate,  db: sess
     user.email = request.email
     user.phone_number = request.phone_number
     user.location = request.location
-    user.profile_picture = Defaults.setDefaultImage(user, 'user')
+    # user.profile_picture = Defaults.setDefaultImage(user, 'user')
 
     try:
         db.commit()

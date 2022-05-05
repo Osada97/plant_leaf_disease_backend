@@ -492,7 +492,7 @@ def getDefaultsImages(posts):
                 pevId = posts[i].owner.id
             else:
                 if pevId != posts[i].owner.id:
-                    profile_pic = f"profiles/user/{posts[i].owner.profile_picture}"
+                    profile_pic = f"assets/profiles/user/{posts[i].owner.profile_picture}"
                     pevId = posts[i].owner.id
 
             if len(posts[i].images) > 0:
@@ -542,7 +542,7 @@ def getDefaultsImagesInSpecific(posts):
                     pevId = posts[i].owner.id
                 else:
                     if pevId != posts[i].owner.id:
-                        profile_pic = f"profiles/user/{posts[i].owner.profile_picture}"
+                        profile_pic = f"assets/profiles/user/{posts[i].owner.profile_picture}"
                         pevId = posts[i].owner.id
 
             if len(posts[i].images) > 0:
@@ -566,7 +566,7 @@ def getDefaultsImagesInSpecific(posts):
                 posts.owner.profile_picture = f"defaults/user.jpg"
                 pevId = posts.owner.id
             else:
-                posts.owner.profile_picture = f"profiles/user/{posts.owner.profile_picture}"
+                posts.owner.profile_picture = f"assets/profiles/user/{posts.owner.profile_picture}"
                 pevId = posts.owner.id
 
         if len(posts.images) > 0:
