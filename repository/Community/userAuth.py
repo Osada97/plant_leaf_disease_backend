@@ -1,3 +1,4 @@
+from operator import and_
 import models
 import os
 import shutil
@@ -87,6 +88,21 @@ def updateProfileDetails(id: int, request: user_schemas.ProfileUpdate,  db: sess
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
+
+    # check username and email are already exits?
+    user_exists = db.query(models.User).filter(and_(models.User.username ==
+                                               request.username, models.User.id != id)).first()
+
+    email_exists = db.query(models.User).filter(and_(models.User.email ==
+                                                     request.email, models.User.id != id)).first()
+
+    if user_exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail={'userName': f"Username is already exits"})
+
+    elif email_exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail={'email': f"Email is already exits"})
 
     user.first_name = request.first_name
     user.last_name = request.last_name
