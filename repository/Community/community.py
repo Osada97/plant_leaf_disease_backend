@@ -30,7 +30,7 @@ def createNewCommunityPost(request: CommunityPost, db: session, new_current_user
 
 def getCommunityPosts(req: Request, db: session):
     posts = db.query(models.CommunityPost).filter(
-        models.CommunityPost.is_approve == True).all()
+        models.CommunityPost.is_approve == True).order_by(desc(models.CommunityPost.id)).all()
 
     if req.headers.get('id'):
         id = req.headers.get('id')
