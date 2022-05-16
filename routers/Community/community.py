@@ -4,7 +4,7 @@ from sqlalchemy.orm import session
 from database import get_db
 from oauth2 import get_current_plantUser
 from repository.Community.comments import RemoveImageInComment, addCommentToPost, addDownVoteForComment, addImageToComment, addVoteForComment, getCommentOnId, removeCommentId, removeDownVoteFromComment, removeUpVoteFromComment, updateCommentId
-from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, getSpecificPostByPostId, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, removedAddedVote, removedDownVote, updateCommunityPost
+from repository.Community.community import addDownVoteForPost, addImageToCommunityPost, addUpVoteForPost, createNewCommunityPost, getCommunityPostById, getCommunityPosts, getSpecificPostByPostId, getSpecificPostDetailsByPostId, removeCommunityPost, removeCommunityPostsComment, removeImageFromPost, removedAddedVote, removedDownVote, updateCommunityPost
 from repository.Community import userAuth
 from schemas.community_schemas import BoolSec, CommunityPost, PostBool, ShowComment, ShowCommunityPost, CreateComment, Comment, ShowCommunityPostOnId
 
@@ -31,6 +31,13 @@ def getUsersPost(id: int, db: session = Depends(get_db), new_current_user: userA
 @router.get('/getonepost/{id}', response_model=BoolSec)
 def getSpesificPost(id: int, db: session = Depends(get_db), new_current_user: userAuth.loginUser = Depends(get_current_plantUser)):
     return getSpecificPostByPostId(id, db, new_current_user)
+
+# get post details without login
+
+
+@router.get('/getpostdetails/{id}', response_model=BoolSec)
+def getPostDetails(id: int, db: session = Depends(get_db)):
+    return getSpecificPostDetailsByPostId(id, db)
 
 # create new post
 

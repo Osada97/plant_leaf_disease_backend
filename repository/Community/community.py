@@ -129,6 +129,51 @@ def getSpecificPostByPostId(id: int, db: session, new_current_user):
     getDefaultsImagesComment(post.comment)
     return getDefaultsImagesInSpecific(post)
 
+# get post details by id
+
+
+def getSpecificPostDetailsByPostId(id: int, db: session):
+    post = db.query(models.CommunityPost).filter(
+        models.CommunityPost.id == id).order_by(models.CommunityPost.id).first()
+
+    postId = int(post.id)
+    vote = db.query(models.VotePost).filter(models.VotePost.postId == postId
+                                            ).order_by(models.VotePost.id).first()
+    if vote is not None:
+        if vote.is_up_vote == True:
+            setattr(post, "isUpVoted", True)
+            setattr(post, "isDownVoted", False)
+        elif vote.is_down_vote == True:
+            setattr(post, "isUpVoted", False)
+            setattr(post, "isDownVoted", True)
+
+    if post.userId == int(id):
+        setattr(post, "isUser", True)
+    else:
+        setattr(post, "isUser", False)
+
+    for i in range(len(post.comment)):
+        comment = post.comment
+        commentId = int(comment[i].id)
+        vote = db.query(models.VoteComment).filter(models.VoteComment.commentId == commentId
+                                                   ).order_by(models.VoteComment.id).first()
+
+        if vote is not None:
+            if vote.is_up_vote == True:
+                setattr(comment[i], "isUpVoted", True)
+                setattr(comment[i], "isDownVoted", False)
+            elif vote.is_down_vote == True:
+                setattr(comment[i], "isUpVoted", False)
+                setattr(comment[i], "isDownVoted", True)
+
+        if comment[i].userid == int(id):
+            setattr(comment[i], "isUser", True)
+        else:
+            setattr(comment[i], "isUser", False)
+
+    getDefaultsImagesComment(post.comment)
+    return getDefaultsImagesInSpecific(post)
+
 # update community posts
 
 
