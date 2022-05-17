@@ -1,4 +1,4 @@
-from operator import and_
+from operator import and_, or_
 from requests import post
 
 from sqlalchemy import desc
@@ -29,6 +29,13 @@ def createNewCommunityPost(request: CommunityPost, db: session, new_current_user
 
 
 def getCommunityPosts(req: Request, db: session):
+    # below comment code is a getting specific users posts
+    # if req.headers.get('id'):
+    #     id = req.headers.get('id')
+    #     posts = db.query(models.CommunityPost).filter(
+    #         or_(models.CommunityPost.is_approve == True, and_(models.CommunityPost.is_approve == False, models.CommunityPost.userId == id))).order_by(desc(models.CommunityPost.id)).all()
+
+    # else:
     posts = db.query(models.CommunityPost).filter(
         models.CommunityPost.is_approve == True).order_by(desc(models.CommunityPost.id)).all()
 
