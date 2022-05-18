@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, File, UploadFile
 from oauth2 import get_current_user
-from repository.Community.adminAuth import adminApprovePost, adminCreateAccount, adminDisapprovePost, adminGetAllPosts, adminGetApprovedPosts, adminGetDisapprovedPosts, adminLoginToAccount, adminRemoveComments, adminRemovePosts, adminUpdateAccountDetails, adminUpdatePassword, adminUploadProfilePicture
+from repository.Community.adminAuth import adminApprovePost, adminCreateAccount, adminDisapprovePost, adminGetAllPosts, adminGetApprovedPosts, adminGetDisapprovedPosts, adminLoginToAccount, adminRemoveComments, adminRemovePosts, adminUpdateAccountDetails, adminUpdatePassword, adminUploadProfilePicture, getAdminDetails
 from sqlalchemy.orm import session
 from database import get_db
 from schemas.admin_schemas import AdminGetPosts, AdminUpdate, AdminUpdatePassword, CreateAdmin,  Admin, Login
@@ -26,6 +26,14 @@ def adminLoginAccount(request: Login, db: session = Depends(get_db)):
     return adminLoginToAccount(request, db)
 
 # logout admin
+
+# get admin details
+
+
+@router.get('/getdetails')
+def getDetails(db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
+    return getAdminDetails(db, current_user)
+
 # update admin
 
 
