@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from schemas.community_schemas import PostImages
+from schemas.user_schemas import GetUser
 
 
 class CreateAdmin(BaseModel):
@@ -45,7 +46,8 @@ class AdminGetPosts(BaseModel):
     up_vote_count: int
     is_approve: bool
     images: List[PostImages] = []
-    image: Optional[List] = []
+    default_image: Optional[str] = None
+    owner: GetUser
 
     class Config():
         orm_mode = True

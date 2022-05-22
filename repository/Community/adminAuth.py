@@ -277,18 +277,48 @@ def adminRemoveComments(id: int, db: Session):
     return {'details': f'Comment {id} is Deleted'}
 
 
-def getPostImage(post):
-    for i in range(len(post)):
-        new_post = list(post)
-        if len(new_post[i].images) > 0:
-            for j in range(len(new_post[i].images)):
-                new_post[i].images[j].image_name = f'{Environment.getBaseEnv()}/assets/community_post_images/{post[i].images[j].image_name}'
+def getPostImage(posts):
+    if hasattr(posts, '__len__'):
+        pevId = ''
+        for i in range(len(posts)):
+            if len(posts[i].owner.profile_picture) == 0 and pevId != posts[i].owner.id:
+                profile_pic = f"defaults/user.jpg"
+                pevId = posts[i].owner.id
+            else:
+                if pevId != posts[i].owner.id:
+                    profile_pic = f"assets/profiles/user/{posts[i].owner.profile_picture}"
+                    pevId = posts[i].owner.id
+
+            if len(posts[i].images) > 0:
+                for j in range(len(posts[i].images)):
+                    posts[i].images[
+                        j].image_name = f'assets/community_post_images/{posts[i].images[j].image_name}'
+
+            else:
+                s = []
+                s = f'defaults/communityDefault.jpg'
+                posts[i].default_image = s
+
+            posts[i].owner.profile_picture = profile_pic
+
+        return posts
+
+    else:
+        pevId = ''
+        if len(posts.owner.profile_picture) == 0 and pevId != posts.owner.id:
+            posts.owner.profile_picture = f"defaults/user.jpg"
+            pevId = posts.owner.id
+        else:
+            posts.owner.profile_picture = f"profiles/user/{posts.owner.profile_picture}"
+            pevId = posts.owner.id
+
+        if len(posts.images) > 0:
+            for j in range(len(posts.images)):
+                posts.images[j].image_name = f'assets/community_post_images/{posts.images[j].image_name}'
 
         else:
             s = []
-            s = list(new_post[i].images)
-            s.append(
-                {'default_image': f'{Environment.getBaseEnv()}/assets/community_post_images/asd'})
-            new_post[i].image = s
+            s = f'defaults/communityDefault.jpg'
+            posts.default_image = s
 
-    return new_post
+        return posts
