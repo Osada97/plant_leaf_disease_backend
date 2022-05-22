@@ -44,9 +44,9 @@ def adminUpdateAccount(id: int, request: AdminUpdate, db: session = Depends(get_
 
 
 # update admin password
-@router.put('/updatepassword/{id}', response_model=Admin)
-def adminUpdateNewPassword(id: int, request: AdminUpdatePassword, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
-    return adminUpdatePassword(id, request, db)
+@router.put('/updatepassword', response_model=Admin)
+def adminUpdateNewPassword(request: AdminUpdatePassword, db: session = Depends(get_db), current_user: Login = Depends(get_current_user)):
+    return adminUpdatePassword(request, db, current_user)
 
 # adding image to admin
 

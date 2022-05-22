@@ -86,8 +86,9 @@ def adminUpdateAccountDetails(id: int, request: admin_schemas.Admin, db: Session
 # admin update password
 
 
-def adminUpdatePassword(id: int, request: admin_schemas.AdminUpdatePassword, db: Session):
-    user = db.query(models.Admin).filter(models.Admin.id == id).first()
+def adminUpdatePassword(request: admin_schemas.AdminUpdatePassword, db: Session, current_user):
+    user = db.query(models.Admin).filter(
+        models.Admin.id == current_user.id).first()
 
     if not user:
         raise HTTPException(
