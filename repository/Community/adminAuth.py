@@ -1,5 +1,6 @@
 from typing import List
 from pydantic import parse_obj_as
+from sqlalchemy import desc
 import models
 import os
 import shutil
@@ -159,7 +160,8 @@ def adminUploadProfilePicture(db: Session, current_user, file):
 
 
 def adminGetAllPosts(db: Session):
-    posts = db.query(models.CommunityPost).all()
+    posts = db.query(models.CommunityPost).order_by(
+        desc(models.CommunityPost.id)).all()
 
     if posts is None:
         raise HTTPException(
