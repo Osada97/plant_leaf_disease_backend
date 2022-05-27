@@ -4,7 +4,7 @@ from database import get_db
 from oauth2 import get_current_user
 from repository.diseaseImage import addPlantToDesease, removeDiseaseImage
 from repository.getPredictedDetails import getPlantAllDetails
-from repository.plantDetails import getDiseaseOnId, getMedicineOnId, getPlantOnId, updateDetails, updateDisease, updateMedicine
+from repository.plantDetails import getDiseaseOnId, getMedicineOnId, getPlantDiseaseId, getPlantOnId, updateDetails, updateDisease, updateMedicine
 from repository.predictPlant import predictImage
 from schemas import plant_secmas, admin_schemas
 
@@ -27,18 +27,26 @@ def getPlantPredictedDetails(id: int, db: Session = Depends(get_db)):
 
 # **plant details section**
 
+# get all diseases
+
+
+@router.get('/getdetails/alldiseases/{id}',  tags=['CRUD plant'])
+def getPlantDiseases(id: int, db: Session = Depends(get_db), current_user: admin_schemas.Login = Depends(get_current_user)):
+    return getPlantDiseaseId(id, db)
+
+
 # get plant based on id
 
 
 @router.get('/getdetails/plant/{id}', response_model=plant_secmas.Plant, tags=['CRUD plant'])
-def getPlantDetails(id: int, db: Session = Depends(get_db)):
+def getPlantDetails(id: int, db: Session = Depends(get_db), current_user: admin_schemas.Login = Depends(get_current_user)):
     return getPlantOnId(id, db)
 
 # get disease based on id
 
 
 @router.get('/getdetails/disease/{id}', response_model=plant_secmas.Disease, tags=['CRUD plant'])
-def getPlantDiseaseDetails(id: int, db: Session = Depends(get_db)):
+def getPlantDiseaseDetails(id: int, db: Session = Depends(get_db), current_user: admin_schemas.Login = Depends(get_current_user)):
     return getDiseaseOnId(id, db)
 
 # get medicine based on id

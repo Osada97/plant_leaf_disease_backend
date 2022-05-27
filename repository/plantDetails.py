@@ -15,6 +15,19 @@ def getDiseaseOnId(id: int, db: Session):
     return plantDisease
 
 
+def getPlantDiseaseId(id: int, db: Session):
+    plantDetails = db.query(models.Plant).filter(models.Plant.id == id).first()
+
+    if plantDetails is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f'Id is invalid')
+
+    plantDisease = db.query(models.PlantDesease.id,models.PlantDesease.desease_name).filter(models.PlantDesease.plant_id == id).all();
+
+    return plantDisease
+
+
+
 def getPlantOnId(id: int, db: Session):
     plantDetails = db.query(models.Plant).filter(models.Plant.id == id).first()
 
