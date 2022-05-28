@@ -22,10 +22,10 @@ def getPlantDiseaseId(id: int, db: Session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f'Id is invalid')
 
-    plantDisease = db.query(models.PlantDesease.id,models.PlantDesease.desease_name).filter(models.PlantDesease.plant_id == id).all();
+    plantDisease = db.query(models.PlantDesease.id, models.PlantDesease.desease_name).filter(
+        models.PlantDesease.plant_id == id).all()
 
     return plantDisease
-
 
 
 def getPlantOnId(id: int, db: Session):
@@ -40,13 +40,23 @@ def getPlantOnId(id: int, db: Session):
 
 def getMedicineOnId(id: int, db: Session):
     plantMedicineDetails = db.query(models.PlantDeseaseMedicene).filter(
-        models.PlantDeseaseMedicene.id == id).first()
+        models.PlantDeseaseMedicene.disease_id == id).all()
 
     if plantMedicineDetails is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f'Id is invalid')
 
-    return plantMedicineDetails
+    for i in range(len(plantMedicineDetails)):
+        if plantMedicineDetails[i].medicene_type == "Organic Control":
+            organic = plantMedicineDetails[i].medicene_description
+
+        else:
+            chemical = plantMedicineDetails[i].medicene_description
+    dict = {}
+    dict["id"] = plantMedicineDetails[i].id
+    dict["organic"] = organic
+    dict['chemical'] = chemical
+    return dict
 
 
 def updateDisease(request: plant_secmas.PlantDiseaseUpdate, id: int, db: Session):

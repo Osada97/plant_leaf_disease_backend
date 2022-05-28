@@ -52,7 +52,7 @@ def getPlantDiseaseDetails(id: int, db: Session = Depends(get_db), current_user:
 # get medicine based on id
 
 
-@router.get('/getdetails/medicine/{id}', response_model=plant_secmas.PlantMedicine, tags=['CRUD plant'])
+@router.get('/getdetails/medicine/{id}',  tags=['CRUD plant'])
 def getPlantMedicineDetails(id: int, db: Session = Depends(get_db), current_user: admin_schemas.Login = Depends(get_current_user)):
     return getMedicineOnId(id, db)
 
