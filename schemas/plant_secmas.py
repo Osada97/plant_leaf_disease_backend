@@ -84,7 +84,6 @@ class PlantDiseaseUpdate(BaseModel):
 
 
 class PlantMedicineUpdate(BaseModel):
-    medicene_type: str = Field(..., min_length=1,  max_length=155)
     medicene_description: Optional[str] = None
 
     class Config():

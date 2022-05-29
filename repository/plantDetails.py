@@ -49,13 +49,16 @@ def getMedicineOnId(id: int, db: Session):
     for i in range(len(plantMedicineDetails)):
         if plantMedicineDetails[i].medicene_type == "Organic Control":
             organic = plantMedicineDetails[i].medicene_description
-
+            organicId = plantMedicineDetails[i].id
         else:
             chemical = plantMedicineDetails[i].medicene_description
+            chemicalId = plantMedicineDetails[i].id
+
     dict = {}
-    dict["id"] = plantMedicineDetails[i].id
+    dict["organicId"] = organicId
     dict["organic"] = organic
     dict['chemical'] = chemical
+    dict["chemicalId"] = chemicalId
     return dict
 
 
@@ -78,7 +81,7 @@ def updateDisease(request: plant_secmas.PlantDiseaseUpdate, id: int, db: Session
     return plant_disease
 
 
-def updateMedicine(request: plant_secmas.PlantDiseaseUpdate, id: int, db: Session):
+def updateMedicine(request: plant_secmas.PlantMedicineUpdate, id: int, db: Session):
     plant_medicine = db.query(models.PlantDeseaseMedicene).filter(
         models.PlantDeseaseMedicene.id == id).first()
 
@@ -86,12 +89,10 @@ def updateMedicine(request: plant_secmas.PlantDiseaseUpdate, id: int, db: Sessio
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f'Id is invalid')
 
-    plant_medicine.medicene_type = request.medicene_type
     plant_medicine.medicene_description = request.medicene_description
 
     db.commit()
     db.refresh(plant_medicine)
-
     return plant_medicine
 
 
